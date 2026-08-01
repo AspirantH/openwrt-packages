@@ -81,14 +81,12 @@ jobs:
         }
 
         git_clone https://github.com/AspirantH/luci-app-lucky oplucky && mvdir oplucky
-        git_clone https://github.com/destan19/luci-app-harbor-file harbor-file && mvdir harbor-file
         git_clone https://github.com/sirpdboy/luci-app-partexp partexp && mvdir partexp
         git_clone https://github.com/EasyTier/luci-app-easytier luci-app-easytier1 && mvdir luci-app-easytier1
         git_clone https://github.com/AspirantH/OpenList-OpenWRT oplist && mvdir oplist
         sed -i 's/option enabled '\''0'\''/option enabled '\''1'\''/' openlist/files/openlist.config
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora && (cd luci-theme-aurora && rm -rf .??* docs* *.md LICENSE)
-        #git_clone https://github.com/eamonxg/luci-app-aurora-config luci-app-aurora-config && cd luci-app-aurora-config && rm -rf .??* docs* *.md LICENSE
-        #git_clone https://github.com/10000ge10000/luci-app-openclaw
+        git_clone https://github.com/destan19/luci-app-harbor-file luci-app-harbor-file && (cd luci-app-harbor-file && rm -rf .??* docs* *.md LICENSE)
         git_sparse_clone master "https://github.com/coolsnowwolf/packages" net/verysync
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-app-verysync
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-mod-network luci-mod-status luci-mod-system && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/leds.js && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/
