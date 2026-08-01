@@ -81,6 +81,7 @@ jobs:
         }
 
         git_clone https://github.com/AspirantH/luci-app-lucky oplucky && mvdir oplucky
+        git_clone https://github.com/destan19/luci-app-harbor-file harbor-file && mvdir harbor-file
         git_clone https://github.com/sirpdboy/luci-app-partexp partexp && mvdir partexp
         git_clone https://github.com/EasyTier/luci-app-easytier luci-app-easytier1 && mvdir luci-app-easytier1
         git_clone https://github.com/AspirantH/OpenList-OpenWRT oplist && mvdir oplist
