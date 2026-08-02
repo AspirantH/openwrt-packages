@@ -6,8 +6,8 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-openlist
-PKG_VERSION:=4.0.3
-PKG_RELEASE:=11
+PKG_VERSION:=4.2.4
+PKG_RELEASE:=12
 
 LUCI_TITLE:=LuCI support for openlist
 LUCI_DEPENDS:=+openlist
