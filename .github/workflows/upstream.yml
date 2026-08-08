@@ -36,15 +36,15 @@ jobs:
     - name: Set git identity
       run : |
         git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git config --global user.name "github-actions[bot]"
-        sudo timedatectl set-timezone "Asia/Shanghai"
+        git config --global user.name "github‑actions‑bot"
+        sudo timedatectl set-timezone Asia/Shanghai
 
     - name: Sync upstream
       run: |
         shopt -s extglob
         set +e
         git rm -r --cache * >/dev/null 2>&1 &
-        rm -rf `find ./* -maxdepth 0 -type d ! -name ".github/diy"` >/dev/null 2>&1
+        rm -rf `find ./* -maxdepth 0 -type d ! -name ".github"` >/dev/null 2>&1
         function git_clone() {
           git clone --depth 1 $1 $2
         }
@@ -58,12 +58,12 @@ jobs:
           else
             git clone --filter=blob:none --sparse "$curl" "$tmpdir"
             cd "$tmpdir"
-            git checkout $branch
+            git checkout "$branch"
           fi
           git sparse-checkout init --cone
           git sparse-checkout set "$@"
-          mv -n $@ $rootdir/
-          cd $rootdir
+          mv -n "$@" "$rootdir"/
+          cd "$rootdir"
         }
         function mvdir() {
           mv -n `find $1/* -maxdepth 0 -type d` ./
@@ -75,49 +75,50 @@ jobs:
         git_clone https://github.com/EasyTier/luci-app-easytier luci-app-easytier1 && mvdir luci-app-easytier1
         git_clone https://github.com/OpenListTeam/OpenList-OpenWRT oplist && mvdir oplist
 
-        sed -i 's/config_get port $1 port 5244/config_get port $1 port 8888/' luci-app-openlist/files/openlist.init
-        sed -i 's/config_get allow_wan $1 allow_wan 0/config_get allow_wan $1 allow_wan 1/' luci-app-openlist/files/openlist.init
-        sed -i 's/config_get temp_dir $1 temp_dir "\/tmp\/openlist"/config_get temp_dir $1 temp_dir "\/opt\/cache"/' luci-app-openlist/files/openlist.init
-        sed -i 's/config_get token_expires_in $1 token_expires_in 48/config_get token_expires_in $1 token_expires_in 999999/' luci-app-openlist/files/openlist.init
-        sed -i 's/config_get ssl $1 ssl 0/config_get ssl $1 ssl 1/' luci-app-openlist/files/openlist.init
-        sed -i 's/config_get ssl_cert $1 ssl_cert ""/config_get ssl_cert $1 ssl_cert "\/etc\/ssl.crt"/' luci-app-openlist/files/openlist.init
-        sed -i 's/config_get ssl_key $1 ssl_key ""/config_get ssl_key $1 ssl_key "\/etc\/ssl.key"/' luci-app-openlist/files/openlist.init
+        sed -i 's/config_get port $1 port 5244/config_get port $1 port 8888/' openlist/files/openlist.init
+        sed -i 's/config_get allow_wan $1 allow_wan 0/config_get allow_wan $1 allow_wan 1/' openlist/files/openlist.init
+        sed -i 's/config_get temp_dir $1 temp_dir "\/tmp\/openlist"/config_get temp_dir $1 temp_dir "\/opt\/cache"/' openlist/files/openlist.init
+        sed -i 's/config_get token_expires_in $1 token_expires_in 48/config_get token_expires_in $1 token_expires_in 999999/' openlist/files/openlist.init
+        sed -i 's/config_get ssl $1 ssl 0/config_get ssl $1 ssl 1/' openlist/files/openlist.init
+        sed -i 's/config_get ssl_cert $1 ssl_cert ""/config_get ssl_cert $1 ssl_cert "\/etc\/ssl.crt"/' openlist/files/openlist.init
+        sed -i 's/config_get ssl_key $1 ssl_key ""/config_get ssl_key $1 ssl_key "\/etc\/ssl.key"/' openlist/files/openlist.init
 
-        sed -i 's/option enabled '\''0'\''/option enabled '\''1'\''/' luci-app-openlist/files/openlist.config
-        sed -i 's/option port '\''5244'\''/option port '\''8888'\''/' luci-app-openlist/files/openlist.config
-        sed -i 's/option allow_wan '\''0'\''/option allow_wan '\''1'\''/' luci-app-openlist/files/openlist.config
-        sed -i 's/option temp_dir '\''\/tmp\/openlist'\''/option temp_dir '\''\/opt\/cache'\''/' luci-app-openlist/files/openlist.config
-        sed -i 's/option token_expires_in '\''48'\''/option token_expires_in '\''999999'\''/' luci-app-openlist/files/openlist.config
-        sed -i 's/option ssl '\''0'\''/option ssl '\''1'\''/' luci-app-openlist/files/openlist.config
-        sed -i 's/option ssl_cert '\'''\''/option ssl_cert '\''\/etc\/ssl.crt'\''/' luci-app-openlist/files/openlist.config
-        sed -i 's/option ssl_key '\'''\''/option ssl_key '\''\/etc\/ssl.key'\''/' luci-app-openlist/files/openlist.config
+        sed -i 's/option enabled '\''0'\''/option enabled '\''1'\''/' openlist/files/openlist.config
+        sed -i 's/option port '\''5244'\''/option port '\''8888'\''/' openlist/files/openlist.config
+        sed -i 's/option allow_wan '\''0'\''/option allow_wan '\''1'\''/' openlist/files/openlist.config
+        sed -i 's/option temp_dir '\''\/tmp\/openlist'\''/option temp_dir '\''\/opt\/cache'\''/' openlist/files/openlist.config
+        sed -i 's/option token_expires_in '\''48'\''/option token_expires_in '\''999999'\''/' openlist/files/openlist.config
+        sed -i 's/option ssl '\''0'\''/option ssl '\''1'\''/' openlist/files/openlist.config
+        sed -i 's/option ssl_cert '\'''\''/option ssl_cert '\''\/etc\/ssl.crt'\''/' openlist/files/openlist.config
+        sed -i 's/option ssl_key '\'''\''/option ssl_key '\''\/etc\/ssl.key'\''/' openlist/files/openlist.config
 
-        sed -i "s/o\.default = '5244'/o.default = '8888'/" luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-        sed -i "s/o\.default = '\/tmp\/openlist'/o.default = '\/opt\/cache'/" luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-        sed -i "s/o\.default = '48'/o.default = '999999'/" luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-
-        cp -f .github/diy/data.db luci-app-openlist/files/data.db
+        cp -f .github/diy/data.db openlist/files/data.db
 
         sed -i 's/^PKG_HASH:=.*/PKG_HASH:=skip/' openlist/Makefile
         sed -i '/HASH:=/ s/=.*/=skip/' openlist/Makefile
         sed -i '/GO_PKG_LDFLAGS:= \\$/,+6 s/$/ \\
         -s -w/' openlist/Makefile
-        sed -i '/define Package\/openlist\/install/,/endef/{/endef/i\\t\/usr\/bin\/upx --lzma --best $(1)\/usr\/bin\/openlist}' openlist/Makefile
+        sed -i '/define Package\/openlist\/install/,/endef/{/endef/i\\t\/usr\/bin\/upx --lzma --best $(1)\/usr\/bin\/openlist
+        }' openlist/Makefile
+
+        sed -i "s/o\.default = '5244'/o.default = '8888'/" luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        sed -i "s/o\.default = '\/tmp\/openlist'/o.default = '\/opt\/cache'/" luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        sed -i "s/o\.default = '48'/o.default = '999999'/" luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
 
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora && cd luci-theme-aurora && rm -rf .??* docs* *.md LICENSE && cd ..
-        git_clone https://github.com/destan19/luci-app-harbor-file
+        git_clone https://github.com/destan19/luci-app-harbor-file luci-app-harbor-file && cd luci-app-harbor-file && rm -rf .??* docs* *.md LICENSE && cd ..
         git_sparse_clone master "https://github.com/coolsnowwolf/packages" net/verysync
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-app-verysync
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-mod-network luci-mod-system && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/leds*
 
         sed -i '/"admin\/system\/leds": {/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
-        sed -i '/"fs": { "\/sys\/class\/leds": "directory" }/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
-        sed -i '/"init": "led",/d' luci-mod-system/root/usr/share/ucitrack/luci-mod-system-system.json
+        sed -i '/"fs": { "\/sys\/class\/leds": "directory" },/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
+        sed -i '/"init": "led",/d' luci-mod-system/root/usr/share/ucitrack/luci-mod-system.json
         sed -i 's/"getLEDs", //g' luci-mod-system/root/usr/share/rpcd/acl.d/luci-mod-system.json
 
         git_sparse_clone openwrt-25.12 "https://github.com/coolsnowwolf/luci" applications/luci-app-diskman && rm -rf luci-app-diskman/po/zh_Hant/
         git_sparse_clone openwrt-25.12 "https://github.com/immortalwrt/luci" applications/luci-app-zerotier
-        git_clone https://github.com/tty228/luci-app-wechatpush && cd luci-app-wechatpush && rm -rf .??* docs* *.md LICENSE && cd ..
+        git_clone https://github.com/tty228/luci-app-wechatpush luci-app-wechatpush && cd luci-app-wechatpush && rm -rf .??* docs* *.md LICENSE && cd ..
         git_sparse_clone main "https://github.com/stackia/rtp2httpd" openwrt-support/rtp2httpd && mv -f rtp2httpd/Makefile.versioned rtp2httpd/Makefile
         git_sparse_clone main "https://github.com/stackia/rtp2httpd" openwrt-support/luci-app-rtp2httpd && mv -f luci-app-rtp2httpd/Makefile.versioned luci-app-rtp2httpd/Makefile
 
@@ -147,22 +148,22 @@ jobs:
         }
 
         for pkg in $(ls */Makefile 2>/dev/null);do
-          repo=$(grep PKG_SOURCE_URL $pkg | grep github | cut -d/ -f4‑5 | sed 's/.git//')
+          repo=$(grep PKG_SOURCE_URL "$pkg" | grep github | cut -d/ -f4‑5 | sed 's/.git//')
           [ -z "$repo" ] && continue
-          read owner name <<< $(echo $repo | tr '/' ' ')
-          res=$(latest $owner $name)
-          commit=$(echo $res | jq -r '.data.repository.defaultBranchRef.target.oid')
-          sed -i "s/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:=$commit/" $pkg
-          tag=$(echo $res | jq -r '.data.repository.latestRelease.tagName' | sed 's/^v//')
-          oldver=$(grep PKG_VERSION $pkg | cut -d= -f2)
-          [[ $tag > $oldver ]] && sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=$tag/" $pkg
+          read owner name <<< $(echo "$repo" | tr '/' ' ')
+          res=$(latest "$owner" "$name")
+          commit=$(echo "$res" | jq -r '.data.repository.defaultBranchRef.target.oid')
+          sed -i "s/PKG_SOURCE_VERSION:=.*/PKG_SOURCE_VERSION:=$commit/" "$pkg"
+          tag=$(echo "$res" | jq -r '.data.repository.latestRelease.tagName' | sed 's/^v//')
+          oldver=$(grep PKG_VERSION "$pkg" | cut -d= -f2)
+          [[ $tag > $oldver ]] && sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=$tag/" "$pkg"
         done
 
         for dir in $(ls -d */);do
           mkf="$dir/Makefile"
           [ ! -f "$mkf" ] && continue
           grep -q PKG_VERSION "$mkf" && ! grep -q PKG_RELEASE "$mkf" && sed -i '/PKG_VERSION:=/aPKG_RELEASE:=' "$mkf"
-          grep -q PKG_RELEASE "$mkf" && sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main $dir)/" "$mkf"
+          grep -q PKG_RELEASE "$mkf" && sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main "$dir")/" "$mkf"
         done
         
         sed -i -e 's?include \.\./\.\./\(lang\|devel\)?include $(TOPDIR)/feeds/packages/\1?' \
