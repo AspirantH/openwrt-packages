@@ -112,9 +112,9 @@ jobs:
         sed -i 's/option ssl_key '\'''\''/option ssl_key '\''\/etc\/ssl.key'\''/' openlist/files/openlist.config
 
         # 使用双引号外层包裹，解决单引号冲突，正常修改basic.js
-        sed -i "s/o\.default = '5244'/o.default = '8888'/" openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-        sed -i "s/o\.default = '\/tmp\/openlist'/o.default = '\/opt\/cache'/" openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-        sed -i "s/o\.default = '48'/o.default = '999999'/" openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        sed -i 's/[[:space:]]*o\.default = '\''5244'\''/  o.default = '\''8888'\''/' openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        sed -i 's/[[:space:]]*o\.default = '\''\/tmp\/openlist'\''/  o.default = '\''\/opt\/cache'\''/' openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        sed -i 's/[[:space:]]*o\.default = '\''48'\''/  o.default = '\''999999'\''/' openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
 
         cp -f .github/diy/data.db openlist/files/data.db
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora && (cd luci-theme-aurora && rm -rf .??* docs* *.md LICENSE)
