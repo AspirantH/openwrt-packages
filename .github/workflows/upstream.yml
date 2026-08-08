@@ -83,7 +83,7 @@ jobs:
         git_clone https://github.com/AspirantH/luci-app-lucky oplucky && mvdir oplucky
         git_clone https://github.com/sirpdboy/luci-app-partexp partexp && mvdir partexp
         git_clone https://github.com/EasyTier/luci-app-easytier luci-app-easytier1 && mvdir luci-app-easytier1
-        git_clone https://github.com/AspirantH/OpenList-OpenWRT oplist && mvdir oplist
+        git_clone https://github.com/OpenListTeam/OpenList-OpenWRT oplist && mvdir oplist
 
         sed -i 's/config_get port $1 port 5244/config_get port $1 port 8888/' luci-app-openlist/files/openlist.init
         sed -i 's/config_get allow_wan $1 allow_wan 0/config_get allow_wan $1 allow_wan 1/' luci-app-openlist/files/openlist.init
