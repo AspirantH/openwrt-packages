@@ -35,7 +35,7 @@ jobs:
           sudo timedatectl set-timezone Asia/Shanghai
 
       - name: Sync upstream
-        shell: /usr/bin/bash
+        shell: bash
         run: |
           shopt -s extglob
           set +e
@@ -123,6 +123,7 @@ jobs:
           [ -f luci-app-rtp2httpd/Makefile.versioned ] && mv -f luci-app-rtp2httpd/Makefile.versioned luci-app-rtp2httpd/Makefile
 
       - name: Delete duplicated packages
+        shell: bash
         run: |
           shopt -s extglob
           set +e
@@ -132,10 +133,12 @@ jobs:
           rm -rf */.github
         
       - name: Apply patches
+        shell: bash
         run: |
           find ".github/diy/patches" -type f -name '*.patch' -print0 | sort -z | xargs -0 -I% sh -c "patch -p1 -E -f -F1 --no-backup-if-mismatch -i '%'"
           
       - name: Modify
+        shell: bash
         run: |
           shopt -s extglob
           set +e
@@ -179,6 +182,7 @@ jobs:
           find . -path "*/root/usr/share/*" -name "*.sh" -exec chmod +x {} \;
 
       - name: Apply
+        shell: bash
         run: |
           [[ -z $(git status --porcelain) ]] && echo "无更新，跳过提交" && exit 0
           Emoji=("🎉" "🤞" "✨" "🎁" "🎈" "🎄" "🎨" "💋" "🍓" "🍕" "🍉" "💐" "🌴" "🚀" "🛸" "🗽" "⛅" "🌈" "🔥" "⛄" "🐶" "🏅" "🦄" "🐤")
