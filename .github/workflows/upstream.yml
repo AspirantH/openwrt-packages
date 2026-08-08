@@ -83,44 +83,39 @@ jobs:
         git_clone https://github.com/AspirantH/luci-app-lucky oplucky && mvdir oplucky
         git_clone https://github.com/sirpdboy/luci-app-partexp partexp && mvdir partexp
         git_clone https://github.com/EasyTier/luci-app-easytier luci-app-easytier1 && mvdir luci-app-easytier1
-        git_clone https://github.com/OpenListTeam/OpenList-OpenWRT oplist && mvdir oplist
+        git_clone https://github.com/AspirantH/OpenList-OpenWRT oplist && mvdir oplist
 
+        # ========== 仅此处修改 luci-app-openlist 全套配置 ==========
+        sed -i 's/^PKG_HASH:=.*/PKG_HASH:=skip/' luci-app-openlist/Makefile
+        sed -i 's/^  HASH:=.*/  HASH:=skip/' luci-app-openlist/Makefile
+        sed -i '/GO_PKG_LDFLAGS:=/h;${x;/\\$/!s/$/ -s -w/}' luci-app-openlist/Makefile
+        sed -i '/define Package\/openlist\/install/,/endef/{/\/usr\/bin\/upx/d}' luci-app-openlist/Makefile
+        sed -i '/define Package\/openlist\/install/a\\t\/usr\/bin\/upx --lzma --best $(1)\/usr\/bin\/openlist\nendef' luci-app-openlist/Makefile
 
-        sed -i 's/^PKG_HASH:=.*/PKG_HASH:=skip/' openlist/Makefile
-        sed -i 's/^  HASH:=.*/  HASH:=skip/' openlist/Makefile
-        # 在最后一行编译参数追加 -s -w，不插入换行破坏配置
-        sed -i '/GO_PKG_LDFLAGS:=/h;${x;/\\$/!s/$/ -s -w/}' openlist/Makefile
-        # 先删除旧upx命令，再新增
-        sed -i '/define Package\/openlist\/install/,/endef/{/\/usr\/bin\/upx/d}' openlist/Makefile
-        sed -i '/define Package\/openlist\/install/a\\t\/usr\/bin\/upx --lzma --best $(1)\/usr\/bin\/openlist\nendef' openlist/Makefile
+        sed -i 's/config_get port $1 port 5244/config_get port $1 port 8888/' luci-app-openlist/files/openlist.init
+        sed -i 's/config_get allow_wan $1 allow_wan 0/config_get allow_wan $1 allow_wan 1/' luci-app-openlist/files/openlist.init
+        sed -i 's/config_get temp_dir $1 temp_dir "\/tmp\/openlist"/config_get temp_dir $1 temp_dir "\/opt\/cache"/' luci-app-openlist/files/openlist.init
+        sed -i 's/config_get token_expires_in $1 token_expires_in 48/config_get token_expires_in $1 token_expires_in 999999/' luci-app-openlist/files/openlist.init
+        sed -i 's/config_get ssl $1 ssl 0/config_get ssl $1 ssl 1/' luci-app-openlist/files/openlist.init
+        sed -i 's/config_get ssl_cert $1 ssl_cert ""/config_get ssl_cert $1 ssl_cert "\/etc\/ssl.crt"/' luci-app-openlist/files/openlist.init
+        sed -i 's/config_get ssl_key $1 ssl_key ""/config_get ssl_key $1 ssl_key "\/etc\/ssl.key"/' luci-app-openlist/files/openlist.init
 
-        sed -i 's/config_get port $1 port 5244/config_get port $1 port 8888/' openlist/files/openlist.init
-        sed -i 's/config_get allow_wan $1 allow_wan 0/config_get allow_wan $1 allow_wan 1/' openlist/files/openlist.init
-        sed -i 's/config_get temp_dir $1 temp_dir "\/tmp\/openlist"/config_get temp_dir $1 temp_dir "\/opt\/cache"/' openlist/files/openlist.init
-        sed -i 's/config_get token_expires_in $1 token_expires_in 48/config_get token_expires_in $1 token_expires_in 999999/' openlist/files/openlist.init
-        sed -i 's/config_get ssl $1 ssl 0/config_get ssl $1 ssl 1/' openlist/files/openlist.init
-        sed -i 's/config_get ssl_cert $1 ssl_cert ""/config_get ssl_cert $1 ssl_cert "\/etc\/ssl.crt"/' openlist/files/openlist.init
-        sed -i 's/config_get ssl_key $1 ssl_key ""/config_get ssl_key $1 ssl_key "\/etc\/ssl.key"/' openlist/files/openlist.init
+        sed -i 's/option enabled '\''0'\''/option enabled '\''1'\''/' luci-app-openlist/files/openlist.config
+        sed -i 's/option port '\''5244'\''/option port '\''8888'\''/' luci-app-openlist/files/openlist.config
+        sed -i 's/option allow_wan '\''0'\''/option allow_wan '\''1'\''/' luci-app-openlist/files/openlist.config
+        sed -i 's/option temp_dir '\''\/tmp\/openlist'\''/option temp_dir '\''\/opt\/cache'\''/' luci-app-openlist/files/openlist.config
+        sed -i 's/option token_expires_in '\''48'\''/option token_expires_in '\''999999'\''/' luci-app-openlist/files/openlist.config
+        sed -i 's/option ssl '\''0'\''/option ssl '\''1'\''/' luci-app-openlist/files/openlist.config
+        sed -i 's/option ssl_cert '\'''\''/option ssl_cert '\''\/etc\/ssl.crt'\''/' luci-app-openlist/files/openlist.config
+        sed -i 's/option ssl_key '\'''\''/option ssl_key '\''\/etc\/ssl.key'\''/' luci-app-openlist/files/openlist.config
 
-        sed -i 's/option enabled '\''0'\''/option enabled '\''1'\''/' openlist/files/openlist.config
-        sed -i 's/option port '\''5244'\''/option port '\''8888'\''/' openlist/files/openlist.config
-        sed -i 's/option allow_wan '\''0'\''/option allow_wan '\''1'\''/' openlist/files/openlist.config
-        sed -i 's/option temp_dir '\''\/tmp\/openlist'\''/option temp_dir '\''\/opt\/cache'\''/' openlist/files/openlist.config
-        sed -i 's/option token_expires_in '\''48'\''/option token_expires_in '\''999999'\''/' openlist/files/openlist.config
-        sed -i 's/option ssl '\''0'\''/option ssl '\''1'\''/' openlist/files/openlist.config
-        sed -i 's/option ssl_cert '\'''\''/option ssl_cert '\''\/etc\/ssl.crt'\''/' openlist/files/openlist.config
-        sed -i 's/option ssl_key '\'''\''/option ssl_key '\''\/etc\/ssl.key'\''/' openlist/files/openlist.config
+        sed -i 's/[[:space:]]*o\.default = '\''5244'\''/  o.default = '\''8888'\''/' luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        sed -i 's/[[:space:]]*o\.default = '\''\/tmp\/openlist'\''/  o.default = '\''\/opt\/cache'\''/' luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        sed -i 's/[[:space:]]*o\.default = '\''48'\''/  o.default = '\''999999'\''/' luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
 
-        # basic.js 兼容前置空格/tab
-        sed -i 's/[[:space:]]*o\.default = '\''5244'\''/  o.default = '\''8888'\''/' openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-        sed -i 's/[[:space:]]*o\.default = '\''\/tmp\/openlist'\''/  o.default = '\''\/opt\/cache'\''/' openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-        sed -i 's/[[:space:]]*o\.default = '\''48'\''/  o.default = '\''999999'\''/' openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-        # 调试输出
-        ls -l openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-        grep -n "o.default" openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-        git status
+        cp -f .github/diy/data.db luci-app-openlist/files/data.db
+        # ==============================================================
 
-        cp -f .github/diy/data.db openlist/files/data.db
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora && (cd luci-theme-aurora && rm -rf .??* docs* *.md LICENSE)
         git_clone https://github.com/destan19/luci-app-harbor-file luci-app-harbor-file && (cd luci-app-harbor-file && rm -rf .??* docs* *.md LICENSE)
         git_sparse_clone master "https://github.com/coolsnowwolf/packages" net/verysync
@@ -166,6 +161,7 @@ jobs:
         sed -i \
         -e "s/\(network\..*\)\.ifname/\1.device/g" \
         `find \( -path "*/root/*" -o -path "*/files/*" -o -path "*/luasrc/*" \) ! -path "./base-files/*" ! -path "./dnsmasq/*" ! -path "./luci-base/*" ! -path "./ppp/*" -type f` &
+        # sed -i -e "s/\(killall .*\)-[0-9] /\1-3 /g" \
         -e "s/killall \([^-]+*\)/killall -3 \1/g" \
         `find \( -path "*/files/root/etc/init.d/*" -o -path "*/root/etc/init.d/*" -o -path "*/files/*.init" \) -type f` &
         (
@@ -184,6 +180,7 @@ jobs:
             over="$(grep -E PKG_VERSION:=.*$ $pkg | cut -f 2 -d '=' | sed -e 's/^\(v\|release-\)//' | grep -E "[0-9]")" || true
             if [ "$over" ]; then
               ver="$(echo $latest | jq -r '.data.repository.latestRelease.tagName' | sed -e 's/^\(v\|release-\)//' | grep -E "^[^()]*$" | grep -E "[0-9]")" || true
+              # [ "$ver" ] || ver="$(git ls-remote --tags git://github.com/$repo | cut -d/ -f3- | sort -t. -nk1,3 | awk '/^[^{]*$/{version=$1}END{print version}' | grep -o -E "[0-9].*")" || true
               echo "$repo-$over-$ver"
               if [ "$ver" ]; then
                 function version_lt() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" != "$1"; }
@@ -202,10 +199,10 @@ jobs:
         (
         for pkg in $(ls -d */); do
           if [[ "$(grep "PKG_VERSION" $pkg/Makefile)" && ! "$(grep "PKG_RELEASE" $pkg/Makefile)" ]]; then
-            sed -i "s/\(PKG_VERSION:=.*\)/\1\nPKG_RELEASE:=/" $pkg || true
+            sed -i "s/\(PKG_VERSION:=.*\)/\1\nPKG_RELEASE:=/" $pkg/Makefile || true
           fi
           if [ "$(grep "PKG_RELEASE" $pkg/Makefile)" ]; then
-            sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main $pkg)/" $pkg || true
+            sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main $pkg)/" $pkg/Makefile || true
           fi
 
         done
@@ -224,16 +221,16 @@ jobs:
         bash .github/diy/create_ucitrack_for_luci.sh -a >/dev/null 2>&1 || true
         bash .github/diy/generate_ucitrack.sh -a >/dev/null 2>&1 || true
         chmod -R +x luci-*/root/etc/init.d/ luci-*/root/bin/ luci-*/root/sbin/ luci-*/root/usr/libexec/ luci-*/root/usr/bin/ luci-*/root/usr/sbin/
-        find . -path "./luci-*/root/usr/share/*" -name "*.sh" -type f -exec chmod +x {} \;
-        # 删除不存在的ok3，修复死循环
-        while [[ ! -f /tmp/ok || ! -f /tmp/ok2 ]]; do
+        find . -path "./luci-*/root/usr/share/*" -name "*.sh" -exec chmod +x {} \;
+        
+        while [[ ! -f /tmp/ok || ! -f /tmp/ok2 || ! -f /tmp/ok3 ]]; do
             echo "wait"
-            sleep 1
+          sleep 1
         done
 
-    - name: Apply
-      run: |
-        set +e
+        - name: Apply
+          run: |
+
         if [ -z "$(git status --porcelain)" ]; then
           echo "✅ No changes to commit, skipping apply."
           exit 0
@@ -241,18 +238,17 @@ jobs:
 
         Emoji=("🎉" "🤞" "✨" "🎁" "🎈" "🎄" "🎨" "💋" "🍓" "🍕" "🍉" "💐" "🌴" "🚀" "🛸" "🗽" "⛅" "🌈" "🔥" "⛄" "🐶" "🏅" "🦄" "🐤")
         git add .
-        git commit -m "${Emoji[$[$RANDOM % ${#Emoji[@]}]]} Sync $(date +"%Y-%m-%d %H:%M:%S")"
+        git commit -m "${Emoji[$RANDOM % ${#Emoji[@]}]} Sync $(date +%Y-%m-%d" "%H:%M:%S)"
 
-        changed_files=$(git diff-tree --no-commit-id --name-only -r HEAD)
-        for pkg in $changed_files; do
-          if [ -f "$pkg/Makefile" ] && grep -q "PKG_RELEASE" "$pkg/Makefile"; then
-            sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main $pkg)/" "$pkg" || true
+        for pkg in $(git diff-tree --no-commit-id --name-only HEAD | grep -v "naiveproxy" | grep -v "luci-app-passwall"); do
+          if [ "$(grep "PKG_RELEASE" $pkg/Makefile)" ]; then
+            sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main $pkg)/" $pkg/Makefile || true
           fi
         done
 
         git reset --soft HEAD^
         git add .
-        git commit -m "${Emoji[$[$RANDOM % ${#Emoji[@]}]]} Sync $(date +"%Y-%m-%d %H:%M:%S")"
+        git commit -m "${Emoji[$RANDOM % ${#Emoji[@]}]} Sync $(date +%Y-%m-%d" "%H:%M:%S)"
         git push -f
 
     - name: Delete workflow runs
