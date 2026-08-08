@@ -1,8 +1,3 @@
-#
-# This is free software, lisence use MIT.
-# 
-# <https://github.com/kiddin9/kwrt-packages>
-#
 name: Merge-upstream
 on:
   push:
@@ -62,7 +57,12 @@ jobs:
           fi
           git sparse-checkout init --cone
           git sparse-checkout set "$@"
-          mv -n "$@" "$rootdir"/
+          for item in "$@"
+          do
+            if [ -e "$tmpdir/$item" ];then
+              mv -n "$tmpdir/$item" "$rootdir"/
+            fi
+          done
           cd "$rootdir"
         }
         function mvdir() {
@@ -107,19 +107,20 @@ jobs:
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora && cd luci-theme-aurora && rm -rf .??* docs* *.md LICENSE && cd ..
         git_clone https://github.com/destan19/luci-app-harbor-file luci-app-harbor-file && cd luci-app-harbor-file && rm -rf .??* docs* *.md LICENSE && cd ..
         git_sparse_clone master "https://github.com/coolsnowwolf/packages" net/verysync
-        git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-app-verysync
-        git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-mod-network luci-mod-system && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/leds*
+        git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-app-verysync luci-mod-network luci-mod-system
+        [ -d luci-mod-system ] && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/leds*
+        [ -f luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json ] && sed -i '/"admin\/system\/leds": {/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
+        [ -f luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json ] && sed -i '/"fs": { "\/sys\/class\/leds": "directory" },/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
+        [ -f luci-mod-system/root/usr/share/ucitrack/luci-mod-system.json ] && sed -i '/"init": "led",/d' luci-mod-system/root/usr/share/ucitrack/luci-mod-system.json
+        [ -f luci-mod-system/root/usr/share/rpcd/acl.d/luci-mod-system.json ] && sed -i 's/"getLEDs", //g' luci-mod-system/root/usr/share/rpcd/acl.d/luci-mod-system.json
 
-        sed -i '/"admin\/system\/leds": {/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
-        sed -i '/"fs": { "\/sys\/class\/leds": "directory" },/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
-        sed -i '/"init": "led",/d' luci-mod-system/root/usr/share/ucitrack/luci-mod-system.json
-        sed -i 's/"getLEDs", //g' luci-mod-system/root/usr/share/rpcd/acl.d/luci-mod-system.json
-
-        git_sparse_clone openwrt-25.12 "https://github.com/coolsnowwolf/luci" applications/luci-app-diskman && rm -rf luci-app-diskman/po/zh_Hant/
+        git_sparse_clone openwrt-25.12 "https://github.com/coolsnowwolf/luci" applications/luci-app-diskman
+        [ -d luci-app-diskman ] && rm -rf luci-app-diskman/po/zh_Hant/
         git_sparse_clone openwrt-25.12 "https://github.com/immortalwrt/luci" applications/luci-app-zerotier
         git_clone https://github.com/tty228/luci-app-wechatpush luci-app-wechatpush && cd luci-app-wechatpush && rm -rf .??* docs* *.md LICENSE && cd ..
-        git_sparse_clone main "https://github.com/stackia/rtp2httpd" openwrt-support/rtp2httpd && mv -f rtp2httpd/Makefile.versioned rtp2httpd/Makefile
-        git_sparse_clone main "https://github.com/stackia/rtp2httpd" openwrt-support/luci-app-rtp2httpd && mv -f luci-app-rtp2httpd/Makefile.versioned luci-app-rtp2httpd/Makefile
+        git_sparse_clone main "https://github.com/stackia/rtp2httpd" openwrt-support/rtp2httpd openwrt-support/luci-app-rtp2httpd
+        [ -f rtp2httpd/Makefile.versioned ] && mv -f rtp2httpd/Makefile.versioned rtp2httpd/Makefile
+        [ -f luci-app-rtp2httpd/Makefile.versioned ] && mv -f luci-app-rtp2httpd/Makefile.versioned luci-app-rtp2httpd/Makefile
 
     - name: Delete duplicated packages
       run: |
