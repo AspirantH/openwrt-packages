@@ -191,11 +191,10 @@ jobs:
         chmod -R +x luci-*/root/etc/init.d/ luci-*/root/bin/ luci-*/root/sbin/ luci-*/root/usr/libexec/ luci-*/root/usr/bin/ luci-*/root/usr/sbin/
         find . -path "./luci-*/root/usr/share/*" -name "*.sh" -type f -exec chmod +x {} \;
         
-        while [[ ! -f /tmp/ok || ! -f /tmp/ok2 || ! -f /tmp/ok3 ]]; do
+        while [[ ! -f /tmp/ok || ! -f /tmp/ok2 ]]; do
             echo "wait"
           sleep 1
         done
-
 
     - name: Customize
       run: |
