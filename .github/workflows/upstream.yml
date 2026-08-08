@@ -228,15 +228,18 @@ jobs:
 
     - name: Apply
       run: |
+        if [ -z "$(git status --porcelain)" ]; then
+          exit 0
+        fi
         Emoji=("🎉" "🤞" "✨" "🎁" "🎈" "🎄" "🎨" "💋" "🍓" "🍕" "🍉" "💐" "🌴" "🚀" "🛸" "🗽" "⛅" "🌈" "🔥" "⛄" "🐶" "🏅" "🦄" "🐤")
         git add .
         git commit -m "${Emoji[$[$RANDOM % ${#Emoji[@]}]]} Sync $(date +%Y-%m-%d" "%H:%M:%S)"
-        for pkg in $(git diff-tree --no-commit-id --name-only HEAD | grep -v "naiveproxy" | grep -v "luci-app-store" | grep -v "luci-app-quickstart"); do
-          if [ -f "$pkg/Makefile" ] && grep -q "PKG_RELEASE" "$pkg/Makefile"; then
-            sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main $pkg)/" "$pkg/Makefile" || true
+        for file in $(git diff-tree --no-commit-id --name-only HEAD | grep -v "naiveproxy" | grep -v "luci-app-store" | grep -v "luci-app-quickstart"); do
+          dir=$(dirname "$file")
+          if [ -f "$dir/Makefile" ] && grep -q "PKG_RELEASE" "$dir/Makefile"; then
+            sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main "$dir")/" "$dir/Makefile" || true
           fi
         done
-
         git add .
         git commit --amend -m "${Emoji[$[$RANDOM % ${#Emoji[@]}]]} Sync $(date +%Y-%m-%d" "%H:%M:%S)"
         git push -f
