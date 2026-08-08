@@ -121,7 +121,7 @@ return view.extend({
 
 		o = s.taboption('basic', form.Value, 'port', _('Port'));
 		o.datatype = 'and(port,min(1))';
-		o.default = '8888';
+		o.default = '5244';
 		o.rmempty = false;
 
 		o = s.taboption('basic', form.Value, 'delayed_start', _('Delayed Start (seconds)'));
@@ -136,7 +136,7 @@ return view.extend({
 		o.default = '/etc/openlist';
 
 		o = s.taboption('basic', form.Value, 'temp_dir', _('Cache directory'));
-		o.default = '/opt/cache';
+		o.default = '/tmp/openlist';
 		o.rmempty = false;
 
 		o = s.taboption('basic', form.Button, '_newpassword', _('Reset Password'),
@@ -162,7 +162,7 @@ return view.extend({
 
 		o = s.taboption('global', form.Value, 'token_expires_in', _('Login Validity Period (hours)'));
 		o.datatype = 'uinteger';
-		o.default = '999999';
+		o.default = '48';
 		o.rmempty = false;
 
 		o = s.taboption('global', form.Value, 'max_connections', _('Max Connections'),
