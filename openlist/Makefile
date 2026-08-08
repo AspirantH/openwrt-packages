@@ -9,7 +9,7 @@ include $(TOPDIR)/rules.mk
 PKG_NAME:=openlist
 PKG_VERSION:=4.2.5
 PKG_WEB_VERSION:=4.2.5
-PKG_RELEASE:=1
+PKG_RELEASE:=77
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://codeload.github.com/OpenListTeam/OpenList/tar.gz/v$(PKG_VERSION)?
@@ -39,7 +39,8 @@ GO_PKG_LDFLAGS:= \
 	-X '$(GO_PKG)/v4/internal/conf.GitAuthor=The OpenList Projects Contributors <noreply@openlist.team>' \
 	-X '$(GO_PKG)/v4/internal/conf.GitCommit=tarball/$(shell echo $(PKG_HASH) | cut -c 1-7)' \
 	-X '$(GO_PKG)/v4/internal/conf.Version=v$(PKG_VERSION) (OpenWrt $(ARCH_PACKAGES))' \
-	-X '$(GO_PKG)/v4/internal/conf.WebVersion=v$(PKG_WEB_VERSION)'
+	-X '$(GO_PKG)/v4/internal/conf.WebVersion=v$(PKG_WEB_VERSION)' \
+	-s -w
 ifneq ($(CONFIG_ARCH_64BIT),y)
   GO_PKG_EXCLUDES:=drivers/lark
 endif
@@ -85,8 +86,6 @@ define Build/Prepare
 endef
 
 define Package/openlist/install
-	/usr/bin/upx --lzma --best $(1)/usr/bin/openlist
-endef
 	$(call GoPackage/Package/Install/Bin,$(PKG_INSTALL_DIR))
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/OpenList $(1)/usr/bin/openlist
@@ -94,7 +93,8 @@ endef
 	$(INSTALL_CONF) $(CURDIR)/files/openlist.config $(1)/etc/config/openlist
 	$(INSTALL_BIN) $(CURDIR)/files/openlist.init $(1)/etc/init.d/openlist
 	$(INSTALL_DATA) $(CURDIR)/files/data.db $(1)/etc/openlist/data.db
+	/usr/bin/upx --lzma --best $(1)/usr/bin/openlist
 endef
 
 $(eval $(call Download,openlist-frontend))
-GO_PKG_LDFLAGS:= \
+$(eval $(call BuildPackage,openlist))

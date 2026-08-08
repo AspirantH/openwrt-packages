@@ -7,11 +7,11 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-openlist
 PKG_VERSION:=4.2.4
-PKG_RELEASE:=1
+PKG_RELEASE:=15
 
 LUCI_TITLE:=LuCI support for openlist
 LUCI_DEPENDS:=+openlist
 
 include $(TOPDIR)/feeds/luci/luci.mk
 
-# call BuildPackage - OpenWrt buildroot signature
+ -s -w

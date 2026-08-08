@@ -14,7 +14,7 @@ SUB_FOLDER:=$(VER_MAIN)_wanji
 
 PKG_NAME:=lucky
 PKG_VERSION:=$(VER_MAIN)
-PKG_RELEASE:=1
+PKG_RELEASE:=27
 PKGARCH:=all 
 
 ifeq ($(ARCH),mipsel)
