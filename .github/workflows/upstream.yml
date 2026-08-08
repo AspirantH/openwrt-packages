@@ -88,7 +88,7 @@ jobs:
         git_clone https://github.com/destan19/luci-app-harbor-file luci-app-harbor-file && (cd luci-app-harbor-file && rm -rf .??* docs* *.md LICENSE)
         git_sparse_clone master "https://github.com/coolsnowwolf/packages" net/verysync
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-app-verysync
-        sed -i 's/{"admin", "nas", "verysync"}/{"admin", "services", "verysync"}/g' luci-app-verysync/luasrc/controller/verysync.lua
+        sed -i 's/{"admin", "nas", "verysync"/{"admin", "services", "verysync"/g' luci-app-verysync/luasrc/controller/verysync.lua
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-mod-network luci-mod-status luci-mod-system && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/leds.js && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/
 
         sed -i '/"admin\/system\/leds": {/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
