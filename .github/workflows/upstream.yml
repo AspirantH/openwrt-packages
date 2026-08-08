@@ -46,13 +46,17 @@ jobs:
         git rm -r --cache * >/dev/null 2>&1 &
         rm -rf `find ./* -maxdepth 0 -type d ! -name ".github/diy"` >/dev/null 2>&1
         function git_clone() {
-          git clone --depth 1 $1 $2
-          if [ "$?" != 0 ]; then
-            echo "error on $1"
-            pid="$( ps -q $$ )"
-            kill $pid
+          branch="$3"
+          if [ -n "$branch" ]; then
+          git clone --depth 1 -b "$branch" $1 $2
+        else
+        git clone --depth 1 $1 $2
           fi
-        }
+          if [ "$?" != 0 ]; then
+          echo "error on $1"
+          pid="$( ps -q $$ )"
+          kill $pid
+          fi}
         function git_sparse_clone() {
         trap 'rm -rf "$tmpdir"' EXIT
         branch="$1" curl="$2" && shift 2
@@ -85,7 +89,8 @@ jobs:
         git_clone https://github.com/EasyTier/luci-app-easytier luci-app-easytier1 && mvdir luci-app-easytier1
         git_clone https://github.com/OpenListTeam/OpenList-OpenWRT oplist && mvdir oplist
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora && (cd luci-theme-aurora && rm -rf .??* docs* *.md LICENSE)
-        git_clone https://github.com/destan19/luci-app-harbor-file luci-app-harbor-file && (cd luci-app-harbor-file && rm -rf .??* docs* *.md LICENSE)
+        #git_clone https://github.com/destan19/luci-app-harbor-file
+        git_clone https://github.com/whzhni1/luci-app-harbor-file luci-app-harbor-file Fix-mobile-bug && (cd luci-app-harbor-file && rm -rf docs* *.md LICENSE)
         git_sparse_clone master "https://github.com/coolsnowwolf/packages" net/verysync
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-app-verysync
         sed -i 's/{"admin", "nas", "verysync"/{"admin", "services", "verysync"/g' luci-app-verysync/luasrc/controller/verysync.lua
@@ -232,13 +237,13 @@ jobs:
         git add .
         git commit -m "${Emoji[$[$RANDOM % ${#Emoji[@]}]]} Sync $(date +%Y-%m-%d" "%H:%M:%S)"
         for pkg in $(git diff-tree --no-commit-id --name-only HEAD | grep -v "naiveproxy" | grep -v "luci-app-store" | grep -v "luci-app-quickstart"); do
-          if [ "$(grep "PKG_RELEASE" $pkg/Makefile)" ]; then
-            sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main $pkg)/" $pkg/Makefile || true
+          if [ -f "$pkg/Makefile" ] && grep -q "PKG_RELEASE" "$pkg/Makefile"; then
+            sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main $pkg)/" "$pkg/Makefile" || true
           fi
         done
-        git reset --soft HEAD^
+
         git add .
-        git commit -m "${Emoji[$[$RANDOM % ${#Emoji[@]}]]} Sync $(date +%Y-%m-%d" "%H:%M:%S)"
+        git commit --amend -m "${Emoji[$[$RANDOM % ${#Emoji[@]}]]} Sync $(date +%Y-%m-%d" "%H:%M:%S)"
         git push -f
 
     - name: Delete workflow runs
