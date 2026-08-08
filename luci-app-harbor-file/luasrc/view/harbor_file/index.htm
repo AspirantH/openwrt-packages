@@ -5299,7 +5299,17 @@
             value.textContent = item[column[0]] || '-';
             node.appendChild(value);
         });
-        node.addEventListener('click', function(event) { handle_item_click(event, item, node); });
+        node.addEventListener('click', function(event) {
+            if (event.ctrlKey || event.metaKey || event.shiftKey) {
+                handle_item_click(event, item, node);
+                return;
+            }
+            if (!state.suppress_next_click) {
+                open_item(item);
+                set_selected(item, node);
+            }
+            state.suppress_next_click = false;
+        });
         node.addEventListener('dblclick', function() { open_item(item); });
         if (kind === 'file' && item.type !== 'directory') {
             bind_item_hover(node, item);
@@ -5370,7 +5380,11 @@
             }
         });
         if (state.current && state.current.kind === 'directory' && can_modify_item(item)) {
-            node.draggable = true;
+            if (!('ontouchstart' in window)) {
+                node.draggable = true;
+            } else {
+                node.draggable = false;
+            }
             node.addEventListener('dragstart', function(event) {
                 hide_item_hover_card();
                 var items = is_item_selected(item) ? selected_items() : [item];
@@ -5396,6 +5410,158 @@
         }
         if (item.type === 'directory') {
             bind_drop_target(node, item.path, item.name);
+        }
+        if ('ontouchstart' in window) {
+            var touchTimer = null;
+            var longPressTriggered = false;
+            var touchStartX = 0, touchStartY = 0;
+            var hasMoved = false;
+            var dragClone = null;
+            var isDragging = false;
+            var scrollableParents = [];
+
+            function getScrollableParents(node) {
+                var parents = [];
+                var parent = node.parentElement;
+                while (parent) {
+                    var style = window.getComputedStyle(parent);
+                    var overflow = style.overflow + style.overflowY + style.overflowX;
+                    if (/(auto|scroll)/.test(overflow)) {
+                        parents.push(parent);
+                    }
+                    parent = parent.parentElement;
+                }
+                return parents;
+            }
+
+            function enableDragMode() {
+                document.addEventListener('touchmove', preventScroll, { passive: false });
+                document.body.style.overflow = 'hidden';
+                document.body.style.touchAction = 'none';
+                scrollableParents.forEach(function(el) {
+                    el.style.overflow = 'hidden';
+                    el.style.touchAction = 'none';
+                });
+            }
+
+            function disableDragMode() {
+                document.removeEventListener('touchmove', preventScroll);
+                document.body.style.overflow = '';
+                document.body.style.touchAction = '';
+                scrollableParents.forEach(function(el) {
+                    el.style.overflow = '';
+                    el.style.touchAction = '';
+                });
+            }
+
+            function preventScroll(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                }
+            }
+
+            node.addEventListener('touchstart', function(e) {
+                var touch = e.touches[0];
+                touchStartX = touch.clientX;
+                touchStartY = touch.clientY;
+                hasMoved = false;
+                longPressTriggered = false;
+                isDragging = false;
+                if (dragClone) {
+                    dragClone.remove();
+                    dragClone = null;
+                }
+                scrollableParents = getScrollableParents(node);
+                touchTimer = setTimeout(function() {
+                    longPressTriggered = true;
+                    state.suppress_next_click = true;
+                    enableDragMode();
+                    var menuEvent = new Event('contextmenu', { bubbles: true, cancelable: true });
+                    menuEvent.clientX = touchStartX;
+                    menuEvent.clientY = touchStartY;
+                    node.dispatchEvent(menuEvent);
+                    if (navigator.vibrate) navigator.vibrate(20);
+                }, 600);
+
+                var onTouchMove = function(ev) {
+                    var touch = ev.touches[0];
+                    var dx = touch.clientX - touchStartX;
+                    var dy = touch.clientY - touchStartY;
+                    var distance = Math.sqrt(dx*dx + dy*dy);
+                    if (distance > 8) {
+                        hasMoved = true;
+                        if (!longPressTriggered) {
+                            if (touchTimer) {
+                                clearTimeout(touchTimer);
+                                touchTimer = null;
+                            }
+                            return;
+                        }
+
+                        if (longPressTriggered) {
+                            ev.preventDefault();
+                            if (!isDragging) {
+                                isDragging = true;
+                                hide_context_menus();
+                                if (!dragClone) {
+                                    dragClone = node.cloneNode(true);
+                                    dragClone.style.position = 'fixed';
+                                    dragClone.style.pointerEvents = 'none';
+                                    dragClone.style.zIndex = 9999;
+                                    dragClone.style.opacity = 0.7;
+                                    dragClone.style.width = node.offsetWidth + 'px';
+                                    dragClone.style.transform = 'scale(1.05)';
+                                    dragClone.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+                                    dragClone.classList.remove('selected');
+                                    document.body.appendChild(dragClone);
+                                }
+                            }
+
+                            if (dragClone) {
+                                var rect = dragClone.getBoundingClientRect();
+                                dragClone.style.left = (touch.clientX - rect.width / 2) + 'px';
+                                dragClone.style.top = (touch.clientY - rect.height / 2) + 'px';
+                            }
+                        }
+                    }
+                };
+
+                var onTouchEnd = function(ev) {
+                    if (touchTimer) {
+                        clearTimeout(touchTimer);
+                        touchTimer = null;
+                    }
+                    if (dragClone) {
+                        dragClone.remove();
+                        dragClone = null;
+                    }
+                    if (isDragging) {
+                        var touch = ev.changedTouches[0];
+                        var target = document.elementFromPoint(touch.clientX, touch.clientY);
+                        var dropTarget = target ? target.closest('[data-path]') : null;
+                        var targetPath = dropTarget && dropTarget._fmItem && dropTarget._fmItem.type === 'directory' ?
+                            dropTarget._fmItem.path : null;
+                        if (targetPath && can_move_to_path(targetPath)) {
+                            confirm_drag_move([item], targetPath);
+                        }
+                        document.querySelectorAll('.fm-drop-target').forEach(el => el.classList.remove('fm-drop-target'));
+                        state.drag_item = null;
+                        state.drag_items = [];
+                        isDragging = false;
+                        longPressTriggered = false;
+                        hasMoved = false;
+                    }
+                    disableDragMode();
+                    state.suppress_next_click = false;
+                    node.removeEventListener('touchmove', onTouchMove);
+                    node.removeEventListener('touchend', onTouchEnd);
+                    node.removeEventListener('touchcancel', onTouchEnd);
+                };
+
+                node.addEventListener('touchmove', onTouchMove, { passive: false });
+                node.addEventListener('touchend', onTouchEnd, { passive: false });
+                node.addEventListener('touchcancel', onTouchEnd, { passive: false });
+            }, { passive: false });
         }
         return node;
     }
