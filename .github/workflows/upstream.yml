@@ -88,8 +88,11 @@ jobs:
 
         sed -i 's/^PKG_HASH:=.*/PKG_HASH:=skip/' openlist/Makefile
         sed -i 's/^  HASH:=.*/  HASH:=skip/' openlist/Makefile
-        sed -i '/GO_PKG_LDFLAGS:=/,/^ifneq/{/GO_PKG_LDFLAGS:=/!{/\\$/!s/$/ -s -w/}}' openlist/Makefile
-        sed -i '/endef/i\\t\/usr\/bin\/upx --lzma --best $(1)\/usr\/bin\/openlist' openlist/Makefile
+        # 在最后一行编译参数追加 -s -w，不插入换行破坏配置
+        sed -i '/GO_PKG_LDFLAGS:=/h;${x;/\\$/!s/$/ -s -w/}' openlist/Makefile
+        # upx 放到install函数末尾
+        sed -i '/define Package\/openlist\/install/a\\t\/usr\/bin\/upx --lzma --best $(1)\/usr\/bin\/openlist\nendef' openlist/Makefile
+        sed -i '/define Package\/openlist\/install/,/endef/{/\/usr\/bin\/upx/d}' openlist/Makefile
 
         sed -i 's/config_get port $1 port 5244/config_get port $1 port 8888/' openlist/files/openlist.init
         sed -i 's/config_get allow_wan $1 allow_wan 0/config_get allow_wan $1 allow_wan 1/' openlist/files/openlist.init
@@ -108,10 +111,10 @@ jobs:
         sed -i 's/option ssl_cert '\'''\''/option ssl_cert '\''\/etc\/ssl.crt'\''/' openlist/files/openlist.config
         sed -i 's/option ssl_key '\'''\''/option ssl_key '\''\/etc\/ssl.key'\''/' openlist/files/openlist.config
 
-        JS_PATH="openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js"
-        sed -i "s/default: '5244'/default: '8888'/" "${JS_PATH}"
-        sed -i "s/default: '\/tmp\/openlist'/default: '\/opt\/cache'/" "${JS_PATH}"
-        sed -i "s/default: '48'/default: '999999'/" "${JS_PATH}"
+        # 使用双引号外层包裹，解决单引号冲突，正常修改basic.js
+        sed -i "s/default = '5244'/default = '8888'/" openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        sed -i "s/default = '\/tmp\/openlist'/default = '\/opt\/cache'/" openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        sed -i "s/default = '48'/default = '999999'/" openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
 
         cp -f .github/diy/data.db openlist/files/data.db
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora && (cd luci-theme-aurora && rm -rf .??* docs* *.md LICENSE)
