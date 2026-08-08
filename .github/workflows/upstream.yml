@@ -84,9 +84,10 @@ jobs:
         git_clone https://github.com/sirpdboy/luci-app-partexp partexp && mvdir partexp
         git_clone https://github.com/EasyTier/luci-app-easytier luci-app-easytier1 && mvdir luci-app-easytier1
         git_clone https://github.com/OpenListTeam/OpenList-OpenWRT oplist && mvdir oplist
-        sed -i 's/option enabled '\''0'\''/option enabled '\''1'\''/' openlist/files/openlist.config
-        sed -i '/-X '\''$(GO_PKG)\/v4\/internal\/conf.WebVersion=v$(PKG_WEB_VERSION)'\''$/a\	-s -w' openlist/Makefile
+
+        sed -i '/GO_PKG_LDFLAGS:=/,/WebVersion=v\$(PKG_WEB_VERSION)\"/s/$/ \\\n\t-s -w/' openlist/Makefile
         sed -i '/endef/i\	\/usr\/bin\/upx --lzma --best $(1)\/usr\/bin\/openlist' openlist/Makefile
+
         sed -i 's/config_get port $1 port 5244/config_get port $1 port 8888/' openlist/files/openlist.init
         sed -i 's/config_get allow_wan $1 allow_wan 0/config_get allow_wan $1 allow_wan 1/' openlist/files/openlist.init
         sed -i 's/config_get temp_dir $1 temp_dir "\/tmp\/openlist"/config_get temp_dir $1 temp_dir "\/opt\/cache"/' openlist/files/openlist.init
@@ -94,6 +95,8 @@ jobs:
         sed -i 's/config_get ssl $1 ssl 0/config_get ssl $1 ssl 1/' openlist/files/openlist.init
         sed -i 's/config_get ssl_cert $1 ssl_cert ""/config_get ssl_cert $1 ssl_cert "\/etc\/ssl.crt"/' openlist/files/openlist.init
         sed -i 's/config_get ssl_key $1 ssl_key ""/config_get ssl_key $1 ssl_key "\/etc\/ssl.key"/' openlist/files/openlist.init
+
+        sed -i 's/option enabled '\''0'\''/option enabled '\''1'\''/' openlist/files/openlist.config
         sed -i 's/option port '\''5244'\''/option port '\''8888'\''/' openlist/files/openlist.config
         sed -i 's/option allow_wan '\''0'\''/option allow_wan '\''1'\''/' openlist/files/openlist.config
         sed -i 's/option temp_dir '\''\/tmp\/openlist'\''/option temp_dir '\''\/opt\/cache'\''/' openlist/files/openlist.config
@@ -101,9 +104,11 @@ jobs:
         sed -i 's/option ssl '\''0'\''/option ssl '\''1'\''/' openlist/files/openlist.config
         sed -i 's/option ssl_cert '\'''\''/option ssl_cert '\''\/etc\/ssl.crt'\''/' openlist/files/openlist.config
         sed -i 's/option ssl_key '\'''\''/option ssl_key '\''\/etc\/ssl.key'\''/' openlist/files/openlist.config
-        sed -i 's/o.default = '\''5244'\''/o.default = '\''8888'\''/' openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-        sed -i 's/o.default = '\''\/tmp\/openlist'\''/o.default = '\''\/opt\/cache'\''/' openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-        sed -i 's/o.default = '\''48'\''/o.default = '\''999999'\''/' openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+
+        sed -i 's/default = '\''5244'\''/default = '\''8888'\''/' openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        sed -i 's/default = '\''\/tmp\/openlist'\''/default = '\''\/opt\/cache'\''/' openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        sed -i 's/default = '\''48'\''/default = '\''999999'\''/' openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+
         cp -f .github/diy/data.db openlist/files/data.db
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora && (cd luci-theme-aurora && rm -rf .??* docs* *.md LICENSE)
         git_clone https://github.com/destan19/luci-app-harbor-file luci-app-harbor-file && (cd luci-app-harbor-file && rm -rf .??* docs* *.md LICENSE)
