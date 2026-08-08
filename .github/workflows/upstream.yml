@@ -83,36 +83,41 @@ jobs:
         git_clone https://github.com/AspirantH/luci-app-lucky oplucky && mvdir oplucky
         git_clone https://github.com/sirpdboy/luci-app-partexp partexp && mvdir partexp
         git_clone https://github.com/EasyTier/luci-app-easytier luci-app-easytier1 && mvdir luci-app-easytier1
+        # 官方仓库自带 luci-app-openlist + openlist 子文件夹，直接mvdir提取
         git_clone https://github.com/OpenListTeam/OpenList-OpenWRT oplist && mvdir oplist
 
+        # 修改 openlist.init 配置参数
         sed -i 's/config_get port $1 port 5244/config_get port $1 port 8888/' luci-app-openlist/files/openlist.init
         sed -i 's/config_get allow_wan $1 allow_wan 0/config_get allow_wan $1 allow_wan 1/' luci-app-openlist/files/openlist.init
         sed -i 's/config_get temp_dir $1 temp_dir "\/tmp\/openlist"/config_get temp_dir $1 temp_dir "\/opt\/cache"/' luci-app-openlist/files/openlist.init
-        sed -i 's/config_get token_expires_in $1 token_expires_in 48/config_get token_expires_in $1 token_expires_in 999999/' luci-app-openlist/files/openlist.init
-        sed -i 's/config_get ssl $1 ssl 0/config_get ssl $1 ssl 1/' luci-app-openlist/files/openlist.init
-        sed -i 's/config_get ssl_cert $1 ssl_cert ""/config_get ssl_cert $1 ssl_cert "\/etc\/ssl.crt"/' luci-app-openlist/files/openlist.init
-        sed -i 's/config_get ssl_key $1 ssl_key ""/config_get ssl_key $1 ssl_key "\/etc\/ssl.key"/' luci-app-openlist/files/openlist.init
+        sed -i 's/config_get token_expires_in $1 token_expires_in 48/config_get token_expires_in 999999/' luci-app-openlist/files/openlist.init
+        sed -i 's/config_get ssl $1 ssl 0/config_get ssl 1/' luci-app-openlist/files/openlist.init
+        sed -i 's/config_get ssl_cert $1 ssl_cert ""/config_get ssl_cert "\/etc\/ssl.crt"/' luci-app-openlist/files/openlist.init
+        sed -i 's/config_get ssl_key $1 ssl_key ""/config_get ssl_key "\/etc\/ssl.key"/' luci-app-openlist/files/openlist.init
 
+        # 修改 openlist.config 默认启用
         sed -i 's/option enabled '\''0'\''/option enabled '\''1'\''/' luci-app-openlist/files/openlist.config
         sed -i 's/option port '\''5244'\''/option port '\''8888'\''/' luci-app-openlist/files/openlist.config
         sed -i 's/option allow_wan '\''0'\''/option allow_wan '\''1'\''/' luci-app-openlist/files/openlist.config
         sed -i 's/option temp_dir '\''\/tmp\/openlist'\''/option temp_dir '\''\/opt\/cache'\''/' luci-app-openlist/files/openlist.config
         sed -i 's/option token_expires_in '\''48'\''/option token_expires_in '\''999999'\''/' luci-app-openlist/files/openlist.config
-        sed -i 's/option ssl '\''0'\''/option ssl '\''1'\''/' luci-app-openlist/files/openlist.config
+        sed -i 's/option ssl '\''0'\''/option ssl '\''1'\''/' luci-app-openlist.config
         sed -i 's/option ssl_cert '\'''\''/option ssl_cert '\''\/etc\/ssl.crt'\''/' luci-app-openlist/files/openlist.config
         sed -i 's/option ssl_key '\'''\''/option ssl_key '\''\/etc\/ssl.key'\''/' luci-app-openlist/files/openlist.config
 
-        sed -i "s/o\.default = '5244'/  o.default = '8888'/" luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-        sed -i "s/o\.default = '\/tmp\/openlist'/  o.default = '\/opt\/cache'/" luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-        sed -i "s/o\.default = '48'/  o.default = '999999'/" luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        # JS界面修改，不额外增加空格，保持原生对齐
+        sed -i "s/o\.default = '5244'/o.default = '8888'/" luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        sed -i "s/o\.default = '\/tmp\/openlist'/o.default = '\/opt\/cache'/" luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        sed -i "s/o\.default = '48'/o.default = '999999'/" luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
 
+        # 覆盖自定义data.db
         cp -f .github/diy/data.db luci-app-openlist/files/data.db
 
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora && (cd luci-theme-aurora && rm -rf .??* docs* *.md LICENSE)
         git_clone https://github.com/destan19/luci-app-harbor-file luci-app-harbor-file && (cd luci-app-harbor-file && rm -rf .??* docs* *.md LICENSE)
         git_sparse_clone master "https://github.com/coolsnowwolf/packages" net/verysync
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-app-verysync
-        git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-mod-network luci-mod-status luci-mod-system && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/leds.js && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/
+        git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-mod-network luci-mod-system && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/leds.js && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/
 
         sed -i '/"admin\/system\/leds": {/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
         sed -i '/"fs": { "\/sys\/class\/leds": "directory" }/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
@@ -153,7 +158,6 @@ jobs:
         sed -i \
         -e "s/\(network\..*\)\.ifname/\1.device/g" \
         `find \( -path "*/root/*" -o -path "*/files/*" -o -path "*/luasrc/*" \) ! -path "./base-files/*" ! -path "./dnsmasq/*" ! -path "./luci-base/*" ! -path "./ppp/*" -type f` &
-        # sed -i -e "s/\(killall .*\)-[0-9] /\1-3 /g" \
         -e "s/killall \([^-]+*\)/killall -3 \1/g" \
         `find \( -path "*/files/root/etc/init.d/*" -o -path "*/root/etc/init.d/*" -o -path "*/files/*.init" \) -type f` &
         (
@@ -172,7 +176,6 @@ jobs:
             over="$(grep -E PKG_VERSION:=.*$ $pkg | cut -f 2 -d '=' | sed -e 's/^\(v\|release-\)//' | grep -E "[0-9]")" || true
             if [ "$over" ]; then
               ver="$(echo $latest | jq -r '.data.repository.latestRelease.tagName' | sed -e 's/^\(v\|release-\)//' | grep -E "^[^()]*$" | grep -E "[0-9]")" || true
-              # [ "$ver" ] || ver="$(git ls-remote --tags git://github.com/$repo | cut -d/ -f3- | sort -t. -nk1,3 | awk '/^[^{]*$/{version=$1}END{print version}' | grep -o -E "[0-9].*")" || true
               echo "$repo-$over-$ver"
               if [ "$ver" ]; then
                 function version_lt() { test "$(echo "$@" | tr " " "\n" | sort -rV | head -n 1)" != "$1"; }
@@ -183,7 +186,6 @@ jobs:
                 fi || true
               fi
             fi
-          fi
         done
         touch /tmp/ok
         ) &
@@ -191,10 +193,10 @@ jobs:
         (
         for pkg in $(ls -d */); do
           if [[ "$(grep "PKG_VERSION" $pkg/Makefile)" && ! "$(grep "PKG_RELEASE" $pkg/Makefile)" ]]; then
-            sed -i "s/\(PKG_VERSION:=.*\)/\1\nPKG_RELEASE:=/" $pkg/Makefile || true
+            sed -i "s/\(PKG_VERSION:=.*\)/\1\nPKG_RELEASE:=/" $pkg || true
           fi
           if [ "$(grep "PKG_RELEASE" $pkg/Makefile)" ]; then
-            sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main $pkg)/" $pkg/Makefile || true
+            sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main $pkg)/" $pkg || true
           fi
 
         done
@@ -204,14 +206,14 @@ jobs:
         sed -i \
           -e 's?include \.\./\.\./\(lang\|devel\)?include $(TOPDIR)/feeds/packages/\1?' \
           -e "s/\(\(^\| \|	\)\(PKG_HASH\|PKG_MD5SUM\|PKG_MIRROR_HASH\|HASH\):=\).*/\1skip/" \
-          -e 's?include .*/luci.mk?include $(TOPDIR)/feeds/luci/luci.mk?' \
+          -e 's?include .*/luci.mk?include $(TOPDIR)/feeds/luci.mk?' \
           */Makefile
 
         chmod +x .github/diy/*.sh
         bash .github/diy/create_acl_for_luci.sh -a >/dev/null 2>&1 || true
         bash .github/diy/convert_translation.sh -a >/dev/null 2>&1 || true
         bash .github/diy/create_ucitrack_for_luci.sh -a >/dev/null 2>&1 || true
-        bash .github/diy/generate_ucitrack.sh -a >/dev/null 2>&1 || true
+        bash .github/diy/generate_ucitrack.sh -a >/dev/null 2>&1
         chmod -R +x luci-*/root/etc/init.d/ luci-*/root/bin/ luci-*/root/sbin/ luci-*/root/usr/libexec/ luci-*/root/usr/bin/ luci-*/root/usr/sbin/
         find . -path "./luci-*/root/usr/share/*" -name "*.sh" -exec chmod +x {} \;
         
@@ -234,7 +236,7 @@ jobs:
 
         for pkg in $(git diff-tree --no-commit-id --name-only HEAD | grep -v "naiveproxy" | grep -v "luci-app-passwall"); do
           if [ "$(grep "PKG_RELEASE" $pkg/Makefile)" ]; then
-            sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main $pkg)/" $pkg/Makefile || true
+            sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main $pkg)/" $pkg || true
           fi
         done
 
