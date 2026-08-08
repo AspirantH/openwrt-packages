@@ -85,13 +85,6 @@ jobs:
         git_clone https://github.com/EasyTier/luci-app-easytier luci-app-easytier1 && mvdir luci-app-easytier1
         git_clone https://github.com/AspirantH/OpenList-OpenWRT oplist && mvdir oplist
 
-        # ========== 仅此处修改 luci-app-openlist 全套配置 ==========
-        sed -i 's/^PKG_HASH:=.*/PKG_HASH:=skip/' luci-app-openlist/Makefile
-        sed -i 's/^  HASH:=.*/  HASH:=skip/' luci-app-openlist/Makefile
-        sed -i '/GO_PKG_LDFLAGS:=/h;${x;/\\$/!s/$/ -s -w/}' luci-app-openlist/Makefile
-        sed -i '/define Package\/openlist\/install/,/endef/{/\/usr\/bin\/upx/d}' luci-app-openlist/Makefile
-        sed -i '/define Package\/openlist\/install/a\\t\/usr\/bin\/upx --lzma --best $(1)\/usr\/bin\/openlist\nendef' luci-app-openlist/Makefile
-
         sed -i 's/config_get port $1 port 5244/config_get port $1 port 8888/' luci-app-openlist/files/openlist.init
         sed -i 's/config_get allow_wan $1 allow_wan 0/config_get allow_wan $1 allow_wan 1/' luci-app-openlist/files/openlist.init
         sed -i 's/config_get temp_dir $1 temp_dir "\/tmp\/openlist"/config_get temp_dir $1 temp_dir "\/opt\/cache"/' luci-app-openlist/files/openlist.init
@@ -109,12 +102,11 @@ jobs:
         sed -i 's/option ssl_cert '\'''\''/option ssl_cert '\''\/etc\/ssl.crt'\''/' luci-app-openlist/files/openlist.config
         sed -i 's/option ssl_key '\'''\''/option ssl_key '\''\/etc\/ssl.key'\''/' luci-app-openlist/files/openlist.config
 
-        sed -i 's/[[:space:]]*o\.default = '\''5244'\''/  o.default = '\''8888'\''/' luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-        sed -i 's/[[:space:]]*o\.default = '\''\/tmp\/openlist'\''/  o.default = '\''\/opt\/cache'\''/' luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-        sed -i 's/[[:space:]]*o\.default = '\''48'\''/  o.default = '\''999999'\''/' luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        sed -i "s/o\.default = '5244'/  o.default = '8888'/" luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        sed -i "s/o\.default = '\/tmp\/openlist'/  o.default = '\/opt\/cache'/" luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        sed -i "s/o\.default = '48'/  o.default = '999999'/" luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
 
         cp -f .github/diy/data.db luci-app-openlist/files/data.db
-        # ==============================================================
 
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora && (cd luci-theme-aurora && rm -rf .??* docs* *.md LICENSE)
         git_clone https://github.com/destan19/luci-app-harbor-file luci-app-harbor-file && (cd luci-app-harbor-file && rm -rf .??* docs* *.md LICENSE)
@@ -228,8 +220,8 @@ jobs:
           sleep 1
         done
 
-        - name: Apply
-          run: |
+    - name: Apply
+      run: |
 
         if [ -z "$(git status --porcelain)" ]; then
           echo "✅ No changes to commit, skipping apply."
