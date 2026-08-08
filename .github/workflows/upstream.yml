@@ -115,7 +115,12 @@ jobs:
         sed -i 's/[[:space:]]*o\.default = '\''5244'\''/  o.default = '\''8888'\''/' openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
         sed -i 's/[[:space:]]*o\.default = '\''\/tmp\/openlist'\''/  o.default = '\''\/opt\/cache'\''/' openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
         sed -i 's/[[:space:]]*o\.default = '\''48'\''/  o.default = '\''999999'\''/' openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
-
+        # 检查文件是否真实存在
+        ls -l openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        # 打印带行号的目标配置行，看清空格、缩进
+        grep -n "o.default" openlist/luci-app-openlist/htdocs/luci-static/resources/view/openlist/basic.js
+        # 查看工作区改动
+        git status
         cp -f .github/diy/data.db openlist/files/data.db
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora && (cd luci-theme-aurora && rm -rf .??* docs* *.md LICENSE)
         git_clone https://github.com/destan19/luci-app-harbor-file luci-app-harbor-file && (cd luci-app-harbor-file && rm -rf .??* docs* *.md LICENSE)
