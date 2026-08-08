@@ -95,7 +95,7 @@ jobs:
         sed -i '/"init": "led",/d' luci-mod-system/root/usr/share/ucitrack/luci-mod-system-system.json
         sed -i 's/"getLEDs", //g' luci-mod-system/root/usr/share/rpcd/acl.d/luci-mod-system.json
 
-        git_sparse_clone openwrt-25.12 "https://github.com/coolsnowwolf/luci" applications/luci-app-diskman && rm -rf luci-app-diskman/po/zh_Hant/
+        git_sparse_clone openwrt-25.12 "https://github.com/coolsnowwolf/luci" applications/luci-app-diskman && rm -rf luci-app-diskman/po/zh_Hant/ && rm -rf luci-app-diskman/po/pl/
         git_sparse_clone openwrt-25.12 "https://github.com/immortalwrt/luci" applications/luci-app-zerotier
         git_clone https://github.com/tty228/luci-app-wechatpush && (cd luci-app-wechatpush && rm -rf .??* docs* *.md LICENSE)
         git_sparse_clone main "https://github.com/stackia/rtp2httpd" openwrt-support/rtp2httpd && mv -f rtp2httpd/Makefile.versioned rtp2httpd/Makefile
