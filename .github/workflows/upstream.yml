@@ -127,20 +127,21 @@ jobs:
         shopt -s extglob
         set +e
         rm -Rf */.git
-        find . -type f \( -name "LICENSE" -o -name "*.md" \) -delete
-        find . -type d -name "doc*" -exec rm -rf {} + 2>/dev/null || true
-        find . -type f -name ".*" ! -path "./.git/*" ! -path "./.github/*" ! -name ".gitignore" -delete 2>/dev/null || true
-        find . -type d -name ".??*" ! -name ".git" ! -name ".github" ! -name "." ! -name ".." -exec rm -rf {} + 2>/dev/null || true
-        find . -type d -name "po" | while read -r podir; do
-          (
-            cd "$podir" || continue
-            for lang in $(ls -d */ 2>/dev/null | sed 's/\/$//'); do
-              case "$lang" in
-                templates|zh-cn|zh_CN|zh_Hans|en) ;;
-                *) rm -rf "$lang" ;;
-              esac
-            done
-          )
+        for dir in */; do
+          [ "$dir" = ".github/" ] && continue
+          find "$dir" -type f \( -name "LICENSE" -o -name "*.md" \) -delete 2>/dev/null || true
+          find "$dir" -type d -name "doc*" -exec rm -rf {} + 2>/dev/null || true
+          if [ -d "$dir/po" ]; then
+            (
+              cd "$dir/po" || continue
+              for lang in $(ls -d */ 2>/dev/null | sed 's/\/$//'); do
+                case "$lang" in
+                  templates|zh-cn|zh_CN|zh_Hans|en) ;;
+                  *) rm -rf "$lang" ;;
+                esac
+              done
+            )
+          fi
         done
         for pkg in $(ls -d .github/diy/packages/*); do
           mv -f $pkg/Makefile.k $pkg/Makefile >/dev/null 2>&1 || true
