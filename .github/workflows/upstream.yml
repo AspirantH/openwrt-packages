@@ -118,18 +118,16 @@ jobs:
         shopt -s extglob
         set +e
         rm -Rf */.git
-        rm -rf doc
-        rm -rf luci-app-diskman/po/zh-tw
-        rm -rf luci-app-zerotier/po/zh_Hant
         find . -type f \( -name "LICENSE" -o -name "*.md" \) -delete
-        find . -type d -name "docs*" -exec rm -rf {} + 2>/dev/null || true
-        find . -type d -name ".??*" ! -name ".github" ! -name ".git" ! -name "." ! -name ".." -exec rm -rf {} + 2>/dev/null || true
+        find . -type d -name "doc*" -exec rm -rf {} + 2>/dev/null || true
+        find . -type f -name ".*" ! -path "./.git/*" ! -path "./.github/*" -delete 2>/dev/null || true
+        find . -type d -name ".??*" ! -name ".git" ! -name ".github" ! -name "." ! -name ".." -exec rm -rf {} + 2>/dev/null || true
         find . -type d -name "po" | while read -r podir; do
           (
             cd "$podir" || continue
             for lang in $(ls -d */ 2>/dev/null | sed 's/\/$//'); do
               case "$lang" in
-                zh-cn|zh_CN|zh_Hans|en) ;;
+                templates|zh-cn|zh_CN|zh_Hans|en) ;;
                 *) rm -rf "$lang" ;;
               esac
             done
@@ -252,7 +250,7 @@ jobs:
 
     - name: Apply
       run: |
-        cd "${GITHUB_WORKSPACE}" || { echo "Failed to cd to GITHUB_WORKSPACE"; exit 1; }
+        cd $GITHUB_WORKSPACE
         if [ -z "$(git status --porcelain)" ]; then
           echo "✅ No changes to commit, skipping apply."
           exit 0
