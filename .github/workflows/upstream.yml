@@ -123,7 +123,7 @@ jobs:
         rm -rf luci-app-zerotier/po/zh_Hant
         find . -type f \( -name "LICENSE" -o -name "*.md" \) -delete
         find . -type d -name "docs*" -exec rm -rf {} + 2>/dev/null || true
-        find . -type d -name ".??*" ! -name "." ! -name ".." -exec rm -rf {} + 2>/dev/null || true
+        find . -type d -name ".??*" ! -name ".github" ! -name "." ! -name ".." -exec rm -rf {} + 2>/dev/null || true
         find . -type d -name "po" | while read -r podir; do
           (
             cd "$podir" || continue
