@@ -84,13 +84,22 @@ jobs:
         git_clone https://github.com/sirpdboy/luci-app-partexp partexp && mvdir partexp
         git_clone https://github.com/EasyTier/luci-app-easytier luci-app-easytier1 && mvdir luci-app-easytier1
         git_clone https://github.com/OpenListTeam/OpenList-OpenWRT oplist && mvdir oplist
-        git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora && (cd luci-theme-aurora && rm -rf .??* docs* *.md LICENSE)
-        #git_clone https://github.com/destan19/luci-app-harbor-file luci-app-harbor-file && (cd luci-app-harbor-file && rm -rf docs* *.md LICENSE)
-        git clone --depth 1 -b Fix-mobile-bug https://github.com/whzhni1/luci-app-harbor-file luci-app-harbor-file && (cd luci-app-harbor-file && rm -rf docs* *.md LICENSE)
+        git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora
+        git clone --depth 1 -b Fix-mobile-bug https://github.com/whzhni1/luci-app-harbor-file luci-app-harbor-file
         git_sparse_clone master "https://github.com/coolsnowwolf/packages" net/verysync
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-app-verysync
         sed -i 's/{"admin", "nas", "verysync"/{"admin", "services", "verysync"/g' luci-app-verysync/luasrc/controller/verysync.lua
         sed -i 's/\[\[nas\]\]/[[services]]/g' luci-app-verysync/luasrc/view/verysync/verysync_status.htm
+        sed -i '/if (data && tb) {/a\\\t\twindow.verysync_port = data.port || 0;' luci-app-verysync/luasrc/view/verysync/verysync_status.htm
+        sed -i '/^function openClient()/,/^}/c\
+        function openClient() {\
+          if (!window.verysync_port) {\
+            alert("Unable to get Verysync port, please check your configuration.");\
+            return;\
+          }\
+          var url = window.location.protocol + "//" + window.location.hostname + ":" + window.verysync_port;\
+          window.open(url);\
+        }' luci-app-verysync/luasrc/view/verysync/verysync_status.htm
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-mod-network luci-mod-status luci-mod-system && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/leds.js && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/
 
         sed -i '/"admin\/system\/leds": {/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
@@ -98,9 +107,9 @@ jobs:
         sed -i '/"init": "led",/d' luci-mod-system/root/usr/share/ucitrack/luci-mod-system-system.json
         sed -i 's/"getLEDs", //g' luci-mod-system/root/usr/share/rpcd/acl.d/luci-mod-system.json
 
-        git_sparse_clone openwrt-25.12 "https://github.com/coolsnowwolf/luci" applications/luci-app-diskman && rm -rf luci-app-diskman/po/zh_Hant/ && rm -rf luci-app-diskman/po/pl/
+        git_sparse_clone openwrt-25.12 "https://github.com/coolsnowwolf/luci" applications/luci-app-diskman
         git_sparse_clone openwrt-25.12 "https://github.com/immortalwrt/luci" applications/luci-app-zerotier
-        git_clone https://github.com/tty228/luci-app-wechatpush && (cd luci-app-wechatpush && rm -rf .??* docs* *.md LICENSE)
+        git_clone https://github.com/tty228/luci-app-wechatpush
         git_sparse_clone main "https://github.com/stackia/rtp2httpd" openwrt-support/rtp2httpd && mv -f rtp2httpd/Makefile.versioned rtp2httpd/Makefile
         git_sparse_clone main "https://github.com/stackia/rtp2httpd" openwrt-support/luci-app-rtp2httpd && mv -f luci-app-rtp2httpd/Makefile.versioned luci-app-rtp2httpd/Makefile
 
@@ -112,6 +121,20 @@ jobs:
         rm -rf doc
         rm -rf luci-app-diskman/po/zh-tw
         rm -rf luci-app-zerotier/po/zh_Hant
+        find . -type f \( -name "LICENSE" -o -name "*.md" \) -delete
+        find . -type d -name "docs*" -exec rm -rf {} + 2>/dev/null || true
+        find . -type d -name ".??*" ! -name "." ! -name ".." -exec rm -rf {} + 2>/dev/null || true
+        find . -type d -name "po" | while read -r podir; do
+          (
+            cd "$podir" || continue
+            for lang in $(ls -d */ 2>/dev/null | sed 's/\/$//'); do
+              case "$lang" in
+                zh-cn|zh_CN|zh_Hans|en) ;;
+                *) rm -rf "$lang" ;;
+              esac
+            done
+          )
+        done
         for pkg in $(ls -d .github/diy/packages/*); do
           mv -f $pkg/Makefile.k $pkg/Makefile >/dev/null 2>&1 || true
         done
@@ -166,19 +189,6 @@ jobs:
         done
         touch /tmp/ok
         ) &
-
-        (
-        for pkg in $(ls -d */); do
-          if [[ "$(grep "PKG_VERSION" $pkg/Makefile)" && ! "$(grep "PKG_RELEASE" $pkg/Makefile)" ]]; then
-            sed -i "s/\(PKG_VERSION:=.*\)/\1\nPKG_RELEASE:=/" $pkg/Makefile || true
-          fi
-          if [ "$(grep "PKG_RELEASE" $pkg/Makefile)" ]; then
-            sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main $pkg)/" $pkg/Makefile || true
-          fi
-
-        done
-        touch /tmp/ok2
-        ) &
         
         sed -i \
           -e 's?include \.\./\.\./\(lang\|devel\)?include $(TOPDIR)/feeds/packages/\1?' \
@@ -194,7 +204,7 @@ jobs:
         chmod -R +x luci-*/root/etc/init.d/ luci-*/root/bin/ luci-*/root/sbin/ luci-*/root/usr/libexec/ luci-*/root/usr/bin/ luci-*/root/usr/sbin/
         find . -path "./luci-*/root/usr/share/*" -name "*.sh" -type f -exec chmod +x {} \;
         
-        while [[ ! -f /tmp/ok || ! -f /tmp/ok2 ]]; do
+        while [[ ! -f /tmp/ok ]]; do
             echo "wait"
           sleep 1
         done
@@ -231,19 +241,12 @@ jobs:
     - name: Apply
       run: |
         if [ -z "$(git status --porcelain)" ]; then
+          echo "✅ No changes to commit, skipping apply."
           exit 0
         fi
         Emoji=("🎉" "🤞" "✨" "🎁" "🎈" "🎄" "🎨" "💋" "🍓" "🍕" "🍉" "💐" "🌴" "🚀" "🛸" "🗽" "⛅" "🌈" "🔥" "⛄" "🐶" "🏅" "🦄" "🐤")
         git add .
         git commit -m "${Emoji[$[$RANDOM % ${#Emoji[@]}]]} Sync $(date +%Y-%m-%d" "%H:%M:%S)"
-        for file in $(git diff-tree --no-commit-id --name-only HEAD | grep -v "naiveproxy" | grep -v "luci-app-store" | grep -v "luci-app-quickstart"); do
-          dir=$(dirname "$file")
-          if [ -f "$dir/Makefile" ] && grep -q "PKG_RELEASE" "$dir/Makefile"; then
-            sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main "$dir")/" "$dir/Makefile" || true
-          fi
-        done
-        git add .
-        git commit --amend -m "${Emoji[$[$RANDOM % ${#Emoji[@]}]]} Sync $(date +%Y-%m-%d" "%H:%M:%S)"
         git push -f
 
     - name: Delete workflow runs
