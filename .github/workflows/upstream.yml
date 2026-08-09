@@ -1,7 +1,7 @@
 #
 # This is free software, lisence use MIT.
 # 
-# <https://github.com/kiddin9/kwrt-packages>
+# <https://github.com/kiddin9/op-packages>
 #
 name: Merge-upstream
 on:
@@ -88,7 +88,6 @@ jobs:
         git clone --depth 1 -b Fix-mobile-bug https://github.com/whzhni1/luci-app-harbor-file luci-app-harbor-file
         git_sparse_clone master "https://github.com/coolsnowwolf/packages" net/verysync
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-app-verysync
-        # 定制 Verysync：菜单路径改为 services，修复打开页面功能
         sed -i 's/{"admin", "nas", "verysync"/{"admin", "services", "verysync"/g' luci-app-verysync/luasrc/controller/verysync.lua
         sed -i 's/\[\[nas\]\]/[[services]]/g' luci-app-verysync/luasrc/view/verysync/verysync_status.htm
         sed -i '/if (data && tb) {/a\\\t\twindow.verysync_port = data.port || 0;' luci-app-verysync/luasrc/view/verysync/verysync_status.htm
@@ -124,7 +123,7 @@ jobs:
         rm -rf luci-app-zerotier/po/zh_Hant
         find . -type f \( -name "LICENSE" -o -name "*.md" \) -delete
         find . -type d -name "docs*" -exec rm -rf {} + 2>/dev/null || true
-        find . -type d -name ".??*" ! -name ".github" ! -name "." ! -name ".." -exec rm -rf {} + 2>/dev/null || true
+        find . -type d -name ".??*" ! -name ".github" ! -name ".git" ! -name "." ! -name ".." -exec rm -rf {} + 2>/dev/null || true
         find . -type d -name "po" | while read -r podir; do
           (
             cd "$podir" || continue
@@ -254,8 +253,6 @@ jobs:
     - name: Apply
       run: |
         cd "${GITHUB_WORKSPACE}" || { echo "Failed to cd to GITHUB_WORKSPACE"; exit 1; }
-        pwd
-        ls -la .git || { echo ".git not found"; exit 1; }
         if [ -z "$(git status --porcelain)" ]; then
           echo "✅ No changes to commit, skipping apply."
           exit 0
