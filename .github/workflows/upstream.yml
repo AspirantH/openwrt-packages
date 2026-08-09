@@ -250,12 +250,10 @@ jobs:
     - name: Apply
       run: |
         cd $GITHUB_WORKSPACE
-        rm -f create_acl_for_luci.*
         if [ -z "$(git status --porcelain)" ]; then
           echo "✅ No changes to commit, skipping apply."
           exit 0
         fi
-        grep -q "^create_acl_for_luci\.\*$" .gitignore 2>/dev/null || echo "create_acl_for_luci.*" >> .gitignore
         Emoji=("🎉" "🤞" "✨" "🎁" "🎈" "🎄" "🎨" "💋" "🍓" "🍕" "🍉" "💐" "🌴" "🚀" "🛸" "🗽" "⛅" "🌈" "🔥" "⛄" "🐶" "🏅" "🦄" "🐤")
         git add .
         git commit -m "${Emoji[$[$RANDOM % ${#Emoji[@]}]]} Sync $(date +%Y-%m-%d" "%H:%M:%S)"
