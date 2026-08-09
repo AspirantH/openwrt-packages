@@ -1,0 +1,33 @@
+<script type="text/javascript">//<![CDATA[
+XHR.poll(3, '<%=url([[admin]], [[services]], [[verysync]], [[status]])%>', null,
+	function(x, data) {
+		var tb = document.getElementById('verysync_status');
+
+		if (data && tb) {
+\t	window.verysync_port = data.port || 0;
+			if (data.running) {
+				var links = '<em><b><font color=green>Verysync <%:RUNNING%></font></b></em><input class="cbi-button mar-10" type="button" value="<%:Open Verysync page%>" onclick="openClient();" />';
+				tb.innerHTML = links;
+			} else {
+				tb.innerHTML = '<em><b><font color=red>Verysync <%:NOT RUNNING%></font></b></em>';
+			}
+		}
+	}
+);
+
+function openClient() {
+  if (!window.verysync_port) {
+    alert("Unable to get Verysync port, please check your configuration.");
+    return;
+  }
+  var url = window.location.protocol + "//" + window.location.hostname + ":" + window.verysync_port;
+  window.open(url);
+}
+//]]>
+</script>
+<style>.mar-10 {margin-left: 50px; margin-right: 10px;}</style>
+<fieldset class="cbi-section">
+	<p id="verysync_status">
+		<em><%:Collecting data...%></em>
+	</p>
+</fieldset>
