@@ -187,18 +187,6 @@ jobs:
         done
         touch /tmp/ok
         ) &
-
-        (
-        for pkg in $(ls -d */); do
-          if [[ "$(grep "PKG_VERSION" $pkg/Makefile)" && ! "$(grep "PKG_RELEASE" $pkg/Makefile)" ]]; then
-            sed -i "s/\(PKG_VERSION:=.*\)/\1\nPKG_RELEASE:=/" $pkg/Makefile || true
-          fi
-          if [ "$(grep "PKG_RELEASE" $pkg/Makefile)" ]; then
-            sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main $pkg)/" $pkg/Makefile || true
-          fi
-        done
-        touch /tmp/ok2
-        ) &
         
         sed -i \
           -e 's?include \.\./\.\./\(lang\|devel\)?include $(TOPDIR)/feeds/packages/\1?' \
@@ -214,7 +202,7 @@ jobs:
         chmod -R +x luci-*/root/etc/init.d/ luci-*/root/bin/ luci-*/root/sbin/ luci-*/root/usr/libexec/ luci-*/root/usr/bin/ luci-*/root/usr/sbin/
         find . -path "./luci-*/root/usr/share/*" -name "*.sh" -type f -exec chmod +x {} \;
         
-        while [[ ! -f /tmp/ok || ! -f /tmp/ok2 ]]; do
+        while [[ ! -f /tmp/ok ]]; do
             echo "wait"
           sleep 1
         done
@@ -258,14 +246,6 @@ jobs:
         Emoji=("🎉" "🤞" "✨" "🎁" "🎈" "🎄" "🎨" "💋" "🍓" "🍕" "🍉" "💐" "🌴" "🚀" "🛸" "🗽" "⛅" "🌈" "🔥" "⛄" "🐶" "🏅" "🦄" "🐤")
         git add .
         git commit -m "${Emoji[$[$RANDOM % ${#Emoji[@]}]]} Sync $(date +%Y-%m-%d" "%H:%M:%S)"
-        for file in $(git diff-tree --no-commit-id --name-only HEAD | grep -v "naiveproxy" | grep -v "luci-app-store" | grep -v "luci-app-quickstart"); do
-          dir=$(dirname "$file")
-          if [ -f "$dir/Makefile" ] && grep -q "PKG_RELEASE" "$dir/Makefile"; then
-            sed -i "s/PKG_RELEASE:=.*/PKG_RELEASE:=$(git rev-list --count main "$dir")/" "$dir/Makefile" || true
-          fi
-        done
-        git add .
-        git commit --amend -m "${Emoji[$[$RANDOM % ${#Emoji[@]}]]} Sync $(date +%Y-%m-%d" "%H:%M:%S)"
         git push -f
 
     - name: Delete workflow runs
