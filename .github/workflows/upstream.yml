@@ -1,7 +1,6 @@
 #
 # This is free software, lisence use MIT.
 # 
-# <https://github.com/kiddin9/kwrt-packages>
 #
 name: Merge-upstream
 on:
@@ -252,6 +251,7 @@ jobs:
 
     - name: Apply
       run: |
+        cd $GITHUB_WORKSPACE
         if [ -z "$(git status --porcelain)" ]; then
           echo "✅ No changes to commit, skipping apply."
           exit 0
