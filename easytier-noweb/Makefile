@@ -3,7 +3,7 @@ include $(TOPDIR)/rules.mk
 
 PKG_NAME:=easytier-noweb
 PKG_VERSION:=$(or $(EASYTIER_VERSION),2.6.4)
-PKG_RELEASE:=21
+PKG_RELEASE:=22
 
 ifeq ($(ARCH),mipsel)
 	APP_ARCH:=mipsel
