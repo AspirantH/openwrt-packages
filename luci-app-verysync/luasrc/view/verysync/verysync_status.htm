@@ -4,7 +4,7 @@ XHR.poll(3, '<%=url([[admin]], [[services]], [[verysync]], [[status]])%>', null,
 		var tb = document.getElementById('verysync_status');
 
 		if (data && tb) {
-\t	window.verysync_port = data.port || 0;
+        window.verysync_port = data.port || 0;
 			if (data.running) {
 				var links = '<em><b><font color=green>Verysync <%:RUNNING%></font></b></em><input class="cbi-button mar-10" type="button" value="<%:Open Verysync page%>" onclick="openClient();" />';
 				tb.innerHTML = links;
