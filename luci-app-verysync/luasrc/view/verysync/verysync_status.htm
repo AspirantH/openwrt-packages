@@ -16,14 +16,13 @@ XHR.poll(3, '<%=url([[admin]], [[services]], [[verysync]], [[status]])%>', null,
 );
 
 function openClient() {
-	var curWwwPath = window.document.location.href;
-	var pathName = window.document.location.pathname;
-	var pos = curWwwPath.indexOf(pathName);
-	var localhostPath = curWwwPath.substring(0, pos);
-	var clientPort = window.document.getElementById("cbid.verysync.config.port").value
-	var url = localhostPath + ":" + clientPort;
-	window.open(url)
-};
+  if (!window.verysync_port) {
+    alert("Unable to get Verysync port, please check your configuration.");
+    return;
+  }
+  var url = window.location.protocol + "//" + window.location.hostname + ":" + window.verysync_port;
+  window.open(url);
+}
 //]]>
 </script>
 <style>.mar-10 {margin-left: 50px; margin-right: 10px;}</style>
