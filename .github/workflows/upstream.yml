@@ -100,7 +100,7 @@ jobs:
           luci.http.write_json(e)\
         end' luci-app-verysync/luasrc/controller/verysync.lua
         sed -i 's/entry({"admin", "services", "verysync", "status"}, call("act_status"), nil, 20, true).leaf = true/entry({"admin", "services", "verysync", "status"}, call("act_status")).leaf = true/' luci-app-verysync/luasrc/controller/verysync.lua
-        sed -i '/if (data && tb) {/a\\\t\twindow.verysync_port = data.port || 0;' luci-app-verysync/luasrc/view/verysync/verysync_status.htm
+        sed -i '/if (data && tb) {/a\\        window.verysync_port = data.port || 0;' luci-app-verysync/luasrc/view/verysync/verysync_status.htm
         sed -i '/^function openClient()/,/^}/c\
         function openClient() {\
           if (!window.verysync_port) {\
