@@ -99,10 +99,9 @@ jobs:
           luci.http.prepare_content("application/json")\
           luci.http.write_json(e)\
         end' luci-app-verysync/luasrc/controller/verysync.lua
-        sed -i 's/entry({"admin", "services", "verysync", "status"}, call("act_status")).leaf = true/entry({"admin", "services", "verysync", "status"}, call("act_status"), nil, 20, true).leaf = true/' luci-app-verysync/luasrc/controller/verysync.lua
         sed -i '/if (data && tb) {/a\\\t\twindow.verysync_port = data.port || 0;' luci-app-verysync/luasrc/view/verysync/verysync_status.htm
-        sed -i '/^function openClient()/,/^}/c\
-        function openClient() {\
+        sed -i '/^function openwebui()/,/^}/c\
+        function openwebui() {\
           if (!window.verysync_port) {\
             alert("Unable to get Verysync port, please check your configuration.");\
             return;\
