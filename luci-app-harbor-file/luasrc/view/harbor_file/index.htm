@@ -273,10 +273,10 @@
 
 .fm-status {
     display: none;
-    position: absolute;
-    top: 14px;
+    position: fixed;
+    top: 20px;
     left: 50%;
-    z-index: 30;
+    z-index: 9999;
     min-width: 220px;
     max-width: min(560px, calc(100% - 36px));
     padding: 9px 14px;
@@ -1811,6 +1811,32 @@
     font-size: 13px;
 }
 
+#fm_property_mode_edit {
+    display: none;
+}
+.perm-header,
+.perm-checks {
+    display: grid;
+    grid-template-columns: repeat(3, 20px);
+}
+
+.perm-header span {
+    text-align: center;
+    font-weight: 600;
+    font-size: 12px;
+}
+
+.fm-flex-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.perm-checks input[type="checkbox"] {
+    justify-self: center;
+}
+
 .fm-property-label {
     color: var(--fm-muted);
 }
@@ -2840,6 +2866,7 @@
                 <div class="fm-detail"><div class="fm-detail-label"><%:Path%></div><div id="fm_detail_path" class="fm-detail-value">-</div></div>
                 <div class="fm-detail"><div class="fm-detail-label"><%:Type%></div><div id="fm_detail_type" class="fm-detail-value">-</div></div>
                 <div class="fm-detail"><div class="fm-detail-label"><%:Size%></div><div id="fm_detail_size" class="fm-detail-value">-</div></div>
+                <div class="fm-detail"><div class="fm-detail-label"><%:Permissions%></div><div id="fm_detail_mode" class="fm-detail-value">-</div></div>
                 <div class="fm-detail"><div class="fm-detail-label"><%:Modified%></div><div id="fm_detail_mtime" class="fm-detail-value">-</div></div>
             </div>
         </main>
@@ -2975,6 +3002,38 @@
             <div class="fm-property-label"><%:Path%></div><div id="fm_property_path" class="fm-property-value">-</div>
             <div class="fm-property-label"><%:Type%></div><div id="fm_property_type" class="fm-property-value">-</div>
             <div class="fm-property-label"><%:Size%></div><div id="fm_property_size" class="fm-property-value">-</div>
+            <div class="fm-property-label"><%:Permissions%></div><div id="fm_property_mode" class="fm-property-value fm-flex-row">
+                <span id="fm_property_mode_text">-</span>
+                <button id="fm_property_edit_mode" class="fm-dialog-action" type="button"><%:Edit%></button>
+            </div>
+            <div id="fm_property_mode_edit" style="display:none;">
+                <div class="fm-property-label"></div>
+                <div class="fm-property-value perm-header">
+                    <span>R</span>
+                    <span>W</span>
+                    <span>X</span>
+                </div>
+                <div class="fm-property-label"><%:Owner%></div><div class="fm-property-value perm-checks">
+                    <input type="checkbox" class="perm-check">
+                    <input type="checkbox" class="perm-check">
+                    <input type="checkbox" class="perm-check">
+                </div>
+                <div class="fm-property-label"><%:Group%></div><div class="fm-property-value perm-checks">
+                    <input type="checkbox" class="perm-check">
+                    <input type="checkbox" class="perm-check">
+                    <input type="checkbox" class="perm-check">
+                </div>
+                <div class="fm-property-label"><%:Others%></div><div class="fm-property-value perm-checks">
+                    <input type="checkbox" class="perm-check">
+                    <input type="checkbox" class="perm-check">
+                    <input type="checkbox" class="perm-check">
+                </div>
+                <div class="fm-property-label"><%:Octal%></div><div class="fm-property-value fm-flex-row">
+                    <input id="fm_property_mode_input" type="text" size="4" maxlength="4" pattern="[0-7]{3,4}" style="width:50px;">
+                    <button id="fm_property_mode_save" class="fm-dialog-action primary" type="button"><%:Save%></button>
+                    <button id="fm_property_mode_cancel" class="fm-dialog-action" type="button"><%:Cancel%></button>
+                </div>
+            </div>
             <div class="fm-property-label"><%:Modified%></div><div id="fm_property_mtime" class="fm-property-value">-</div>
         </div>
     </div>
@@ -3590,8 +3649,10 @@
         archive_extract_start: '<%=url("admin/local_fs/archive_extract_start")%>',
         archive_status: '<%=url("admin/local_fs/archive_status")%>',
         package_install_start: '<%=url("admin/local_fs/package_install_start")%>',
-        package_install_status: '<%=url("admin/local_fs/package_install_status")%>'
+        package_install_status: '<%=url("admin/local_fs/package_install_status")%>',
+        chmod: '<%=url("admin/local_fs/chmod")%>'
     };
+    var permBits = [8,7,6, 5,4,3, 2,1,0];
     var icon_base = '<%=resource%>/harbor_file/icons/';
     var status_duration_fast = 1500;
     var status_duration_warning = 2000;
@@ -4799,6 +4860,7 @@
         document.getElementById('fm_detail_type').textContent = item ? item.display_type : '-';
         document.getElementById('fm_detail_size').textContent = item ? item.display_size : '-';
         document.getElementById('fm_detail_mtime').textContent = item ? item.display_mtime : '-';
+        document.getElementById('fm_detail_mode').textContent = item ? (item.mode || '-') : '-';
     }
 
     function ensure_item_hover_card() {
@@ -4850,6 +4912,7 @@
         append_item_hover_row(card, labels.size, item.display_size);
         append_item_hover_row(card, labels.modified, item.display_mtime);
         append_item_hover_row(card, labels.path, item.path);
+        append_item_hover_row(card, 'Permissions', item.mode || '-');
         card.style.display = 'block';
         position_item_hover_card(event);
     }
@@ -5619,7 +5682,8 @@
             meta: item.path,
             display_type: labels.folder,
             display_size: '-',
-            display_mtime: format_time(item.mtime)
+            display_mtime: format_time(item.mtime),
+            mode: item.mode || '---'
         };
     }
 
@@ -5636,7 +5700,8 @@
             usage_percent: item.usage_percent,
             display_type: item.device || labels.system_disk,
             display_size: format_kb(item.total_kb),
-            display_mtime: '-'
+            display_mtime: '-',
+            mode: item.mode || '---'
         };
     }
 
@@ -5689,7 +5754,8 @@
             display_type: is_directory ? labels.folder : (is_package ? package_label : (item.ext ? item.ext.toUpperCase() + ' ' + labels.file : labels.file)),
             display_size: is_directory ? '-' : format_size(item.size),
             display_mtime: format_time(item.mtime),
-            mtime: item.mtime || 0
+            mtime: item.mtime || 0,
+            mode: item.mode || '---'
         };
     }
 
@@ -7098,6 +7164,24 @@
         state.thumbnail_path = '';
     }
 
+    function updatePermissionCheckboxes(modeStr) {
+        var mode = parseInt(modeStr, 8);
+        if (isNaN(mode)) mode = 0;
+        var checks = document.querySelectorAll('.perm-check');
+        checks.forEach(function(cb, index) {
+            cb.checked = (mode & (1 << permBits[index])) !== 0;
+        });
+    }
+
+    function getModeFromCheckboxes() {
+        var checks = document.querySelectorAll('.perm-check');
+        var mode = 0;
+        checks.forEach(function(cb, index) {
+            if (cb.checked) mode |= (1 << permBits[index]);
+        });
+        return mode.toString(8).padStart(3, '0');
+    }
+    
     function open_properties(item) {
         if (!item) {
             return;
@@ -7108,6 +7192,65 @@
         document.getElementById('fm_property_type').textContent = item.display_type;
         document.getElementById('fm_property_size').textContent = item.display_size;
         document.getElementById('fm_property_mtime').textContent = item.display_mtime;
+        
+        var mode = item.mode || '---';
+        document.getElementById('fm_property_mode_text').textContent = mode;
+        document.getElementById('fm_property_mode_input').value = mode;
+        updatePermissionCheckboxes(mode);
+
+        document.getElementById('fm_property_mode_edit').style.display = 'none';
+
+        document.getElementById('fm_property_edit_mode').onclick = function() {
+            document.getElementById('fm_property_mode_edit').style.display = 'contents';
+        };
+
+        document.getElementById('fm_property_mode_cancel').onclick = function() {
+            document.getElementById('fm_property_mode_edit').style.display = 'none';
+            document.getElementById('fm_property_mode_input').value = mode;
+            updatePermissionCheckboxes(mode);
+        };
+
+        document.getElementById('fm_property_mode_save').onclick = function() {
+            var newMode = document.getElementById('fm_property_mode_input').value.trim();
+            if (!/^[0-7]{3,4}$/.test(newMode)) {
+                set_warning_status('Invalid permissions');
+                return;
+            }
+            $.ajax({
+                url: api.chmod,
+                type: 'POST',
+                data: { path: item.path, mode: newMode },
+                dataType: 'json',
+                success: function(res) {
+                    if (res && res.code === 0) {
+                        set_status('Permissions updated', 'success');
+                        mode = newMode;
+                        document.getElementById('fm_property_mode_text').textContent = mode;
+                        document.getElementById('fm_property_mode_edit').style.display = 'none';
+                        refresh_after_write(item.path);
+                    } else {
+                        set_error_status(res.message || 'Update failed');
+                    }
+                },
+                error: function() {
+                    set_error_status('Update failed');
+                }
+            });
+        };
+
+        document.getElementById('fm_property_mode_input').addEventListener('input', function() {
+            var val = this.value;
+            if (/^[0-7]{0,4}$/.test(val)) {
+                updatePermissionCheckboxes(val);
+            }
+        });
+
+        document.querySelectorAll('.perm-check').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                var mode = getModeFromCheckboxes();
+                document.getElementById('fm_property_mode_input').value = mode;
+            });
+        });
         open_modal('fm_property_dialog');
     }
 
@@ -8126,7 +8269,6 @@
             handle_file_drop(event, state.current.path, path_title(state.current.path));
         }
     });
-    document.getElementById('fm_modal_mask').addEventListener('click', close_modal);
 
     var close_buttons = document.querySelectorAll('.fm-dialog-close');
     for (var close_index = 0; close_index < close_buttons.length; close_index++) {
