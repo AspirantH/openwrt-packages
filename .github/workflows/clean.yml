@@ -2,14 +2,13 @@ name: Clean up old workflow runs
 
 on:
   schedule:
-    # 每天凌晨 2 点运行一次，可根据需要调整
-    - cron: '0 2 * * *'
+    - cron: '0 */2 * * *'
   workflow_dispatch:
     inputs:
       keep_runs:
         description: 'Number of latest runs to keep per workflow (except this workflow itself)'
         required: true
-        default: 3
+        default: 2
         type: number
       keep_self_runs:
         description: 'Number of latest runs to keep for this cleanup workflow itself'
@@ -18,8 +17,8 @@ on:
         type: number
 
 permissions:
-  actions: write   # 允许删除工作流运行
-  contents: read   # 允许列出工作流
+  actions: write
+  contents: read
 
 jobs:
   cleanup:
@@ -30,7 +29,7 @@ jobs:
         with:
           script: |
             // 获取用户输入的保留数量
-            const keepRunsDefault = parseInt('${{ github.event.inputs.keep_runs || 3 }}');
+            const keepRunsDefault = parseInt('${{ github.event.inputs.keep_runs || 2 }}');
             const keepSelfRuns = parseInt('${{ github.event.inputs.keep_self_runs || 1 }}');
 
             // 获取当前工作流的 ID（用于识别自身）
