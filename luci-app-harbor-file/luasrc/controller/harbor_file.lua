@@ -2902,20 +2902,34 @@ local function write_batch_failure(status, reason, message, processed, success_c
 end
 
 local function batch_transfer_path(mode)
-    local conflict_action = luci.http.formvalue("conflict_action") or "skip"
     if not validate_write_request() then
         return
     end
+
+    local rename_map_json = luci.http.formvalue("rename_map")
+    local rename_map = {}
+    if rename_map_json and rename_map_json ~= "" then
+        local jsonc = require "luci.jsonc"
+        local ok, data = pcall(jsonc.parse, rename_map_json)
+        if ok and type(data) == "table" then
+            rename_map = data
+        end
+    end
+
+    local conflict_action = luci.http.formvalue("conflict_action") or "skip"
+
     local paths, parse_err = parse_path_array_param("sources")
     if not paths then
         write_json_status(400, "Bad Request", { code = 1, message = parse_err })
         return
     end
+
     local target_dir, target_err = get_writable_directory(luci.http.formvalue("target_dir"))
     if not target_dir then
         write_json_status(400, "Bad Request", { code = 1, message = target_err or "invalid target directory" })
         return
     end
+
     if not system_operations_allowed() and is_system_path(target_dir) then
         return deny_system_operation()
     end
@@ -2932,6 +2946,7 @@ local function batch_transfer_path(mode)
             required_size = required_size + (tonumber(item.stat.size) or 0)
         end
     end
+
     local has_space, available, space_err, required = ensure_directory_space(target_dir, required_size)
     if not has_space then
         write_json_status(507, "Insufficient Storage", {
@@ -2944,8 +2959,10 @@ local function batch_transfer_path(mode)
 
     local nixio_fs = require "nixio.fs"
     local success_count = 0
+
     for index, item in ipairs(items) do
-        local target = join_path(target_dir, item.name)
+        local target_name = rename_map[item.name] or item.name
+        local target = join_path(target_dir, target_name)
         local target_stat = nixio_fs.lstat(target)
         local should_skip = false
 
@@ -2959,6 +2976,28 @@ local function batch_transfer_path(mode)
             elseif conflict_action == "skip" then
                 success_count = success_count + 1
                 should_skip = true
+            elseif conflict_action == "rename" then
+                local base = target_name
+                local name_no_ext, ext
+                local dot_pos = base:find("%.[^.]*$")
+                if dot_pos then
+                    name_no_ext = base:sub(1, dot_pos - 1)
+                    ext = base:sub(dot_pos)
+                else
+                    name_no_ext = base
+                    ext = ""
+                end
+                local count = 1
+                while true do
+                    local new_name = name_no_ext .. " (" .. count .. ")" .. ext
+                    local new_target = join_path(target_dir, new_name)
+                    if not nixio_fs.lstat(new_target) then
+                        target_name = new_name
+                        target = new_target
+                        break
+                    end
+                    count = count + 1
+                end
             else
                 write_batch_failure(409, "Conflict", "target already exists", index - 1, success_count, item.path)
                 return
@@ -2966,7 +3005,10 @@ local function batch_transfer_path(mode)
         end
 
         if not should_skip then
+            local original_name = item.name
+            item.name = target_name
             local ok, op_err = transfer_one(mode, item, target_dir)
+            item.name = original_name
             if not ok then
                 write_batch_failure(500, "Transfer Failed", op_err, index - 1, success_count, item.path)
                 return
