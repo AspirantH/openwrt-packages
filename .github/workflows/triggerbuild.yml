@@ -3,7 +3,7 @@
 # 
 # <https://github.com/kiddin9/op-packages>
 #
-name: trigger build
+name: updates & trigger openwrt build
 
 on:
   push:
