@@ -238,7 +238,7 @@ jobs:
         sed -i 's/option ssl_cert '\'''\''/option ssl_cert '\''\/etc\/ssl.crt'\''/' openlist/files/openlist.config
         sed -i 's/option ssl_key '\'''\''/option ssl_key '\''\/etc\/ssl.key'\''/' openlist/files/openlist.config
 
-        #cp .github/diy/data.db openlist/files/data.db
+        cp .github/diy/data.db openlist/files/data.db
 
         sed -i '/-X.*WebVersion=v$(PKG_WEB_VERSION)/ s/$/ \\/' openlist/Makefile
         sed -i '/-X.*WebVersion=v$(PKG_WEB_VERSION)/a \\t-s -w' openlist/Makefile
