@@ -85,7 +85,7 @@ jobs:
         git_clone https://github.com/sirpdboy/luci-app-partexp partexp && mvdir partexp
         git_clone https://github.com/EasyTier/luci-app-easytier luci-app-easytier1 && mvdir luci-app-easytier1
         git_clone https://github.com/OpenListTeam/OpenList-OpenWRT oplist && mvdir oplist
-        #git_clone https://github.com/destan19/OpenAppFilter && mvdir OpenAppFilter
+        git_clone https://github.com/destan19/OpenAppFilter && mvdir OpenAppFilter
         git_clone https://github.com/vernesong/OpenClash && mv -f OpenClash/luci-app-openclash ./; rm -rf OpenClash
         git_clone https://github.com/10000ge10000/luci-app-openclaw && rm -rf luci-app-openclaw/.g*
         sed -i 's/+libstdcpp6/+libstdcpp/g' luci-app-openclaw/Makefile
