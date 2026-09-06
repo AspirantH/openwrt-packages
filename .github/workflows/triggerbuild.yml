@@ -114,12 +114,13 @@ jobs:
           var url = window.location.protocol + "//" + window.location.hostname + ":" + window.verysync_port;\
           window.open(url);\
         }' luci-app-verysync/luasrc/view/verysync/verysync_status.htm
-        git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-mod-network luci-mod-status luci-mod-system && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/leds.js && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/
+        
+        #git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-mod-network luci-mod-status luci-mod-system && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/leds.js && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/
 
-        sed -i '/"admin\/system\/leds": {/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
-        sed -i '/"fs": { "\/sys\/class\/leds": "directory" }/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
-        sed -i '/"init": "led",/d' luci-mod-system/root/usr/share/ucitrack/luci-mod-system-system.json
-        sed -i 's/"getLEDs", //g' luci-mod-system/root/usr/share/rpcd/acl.d/luci-mod-system.json
+        #sed -i '/"admin\/system\/leds": {/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
+        #sed -i '/"fs": { "\/sys\/class\/leds": "directory" }/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
+        #sed -i '/"init": "led",/d' luci-mod-system/root/usr/share/ucitrack/luci-mod-system-system.json
+        #sed -i 's/"getLEDs", //g' luci-mod-system/root/usr/share/rpcd/acl.d/luci-mod-system.json
 
         git_sparse_clone openwrt-25.12 "https://github.com/coolsnowwolf/luci" applications/luci-app-diskman
         git_sparse_clone openwrt-25.12 "https://github.com/immortalwrt/luci" applications/luci-app-zerotier
