@@ -91,7 +91,18 @@ jobs:
         sed -i 's/+libstdcpp6/+libstdcpp/g' luci-app-openclaw/Makefile
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora
         git_sparse_clone master "https://github.com/coolsnowwolf/packages" net/verysync
-        sed -i 's/PKG_VERSION:=2.21.3/PKG_VERSION:=2.30.3/' verysync/Makefile
+        LATEST_VER=$(curl -s http://dl.verysync.com/releases/ \
+          | grep -oE 'href="v?[0-9]+(\.[0-9]+){1,3}([^"/]*)"' \
+          | sed -E 's/href="v?//; s/"$//' \
+          | grep -E '^[0-9]' \
+          | sort -rV \
+          | head -n 1)
+        if [ -n "$LATEST_VER" ]; then
+          sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=$LATEST_VER/" verysync/Makefile
+          echo "verysync version updated to $LATEST_VER"
+        else
+          echo "Failed to fetch latest verysync version, keeping original."
+        fi
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-app-verysync
         sed -i 's/{"admin", "nas", "verysync"/{"admin", "services", "verysync"/g' luci-app-verysync/luasrc/controller/verysync.lua
         sed -i 's/\[\[nas\]\]/[[services]]/g' luci-app-verysync/luasrc/view/verysync/verysync_status.htm
