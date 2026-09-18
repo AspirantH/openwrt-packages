@@ -91,6 +91,7 @@ jobs:
         sed -i 's/+libstdcpp6/+libstdcpp/g' luci-app-openclaw/Makefile
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora
         git_sparse_clone master "https://github.com/coolsnowwolf/packages" net/verysync
+        sed -i 's/PKG_VERSION:=2.21.3/PKG_VERSION:=2.30.3/' verysync/Makefile
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-app-verysync
         sed -i 's/{"admin", "nas", "verysync"/{"admin", "services", "verysync"/g' luci-app-verysync/luasrc/controller/verysync.lua
         sed -i 's/\[\[nas\]\]/[[services]]/g' luci-app-verysync/luasrc/view/verysync/verysync_status.htm
