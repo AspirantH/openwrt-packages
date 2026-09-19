@@ -34,7 +34,7 @@ else ifeq ($(ARCH),loongarch64)
 endif
 
 PKG_NAME:=verysync
-PKG_VERSION:=2.30.5
+PKG_VERSION:=2.31.0
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-linux-$(PKG_ARCH_VERYSYNC)-v$(PKG_VERSION).tar.gz
