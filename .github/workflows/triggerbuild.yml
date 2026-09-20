@@ -93,7 +93,6 @@ jobs:
         OPENCLAW_VER=$(tr -d '[:space:]' < luci-app-openclaw/VERSION)
         sed -i "s/^PKG_VERSION:=.*/PKG_VERSION:=$OPENCLAW_VER/" luci-app-openclaw/Makefile
         sed -i "s|\$(INSTALL_DATA) ./VERSION \$(1)/usr/share/openclaw/VERSION|echo $OPENCLAW_VER > \$(1)/usr/share/openclaw/VERSION|" luci-app-openclaw/Makefile
-        rm -f luci-app-openclaw/VERSION
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora
         git_sparse_clone master "https://github.com/coolsnowwolf/packages" net/verysync
         LATEST_VER=$(curl -s http://dl.verysync.com/releases/ \
