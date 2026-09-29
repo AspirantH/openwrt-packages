@@ -82,6 +82,7 @@ jobs:
         }
 
         git_clone https://github.com/AspirantH/luci-app-lucky oplucky && mvdir oplucky
+        git_clone https://github.com/VizzleTF/luci-app-footstrap-files footstrapf && mv -f footstrapf/luci-app-footstrap-files ./;rm -rf footstrapf
         git_clone https://github.com/sirpdboy/luci-app-partexp partexp && mvdir partexp
         git_clone https://github.com/EasyTier/luci-app-easytier luci-app-easytier1 && mvdir luci-app-easytier1
         git_clone https://github.com/OpenListTeam/OpenList-OpenWRT oplist && mvdir oplist
