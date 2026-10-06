@@ -6,22 +6,18 @@ XHR.poll(3, '<%=url([[admin]], [[services]], [[verysync]], [[status]])%>', null,
 		if (data && tb) {
         window.verysync_port = data.port || 0;
 			if (data.running) {
-				var links = '<em><b><font color=green>Verysync <%:RUNNING%></font></b></em><input class="cbi-button mar-10" type="button" value="<%:Open Verysync page%>" onclick="openClient();" />';
+				var links = '<em><b><font color="green">Verysync <%:RUNNING%></font></b></em><input class="cbi-button mar-10" type="button" value="<%:Open Verysync page%>" onclick="openwebui();" />';
 				tb.innerHTML = links;
 			} else {
-				tb.innerHTML = '<em><b><font color=red>Verysync <%:NOT RUNNING%></font></b></em>';
+				tb.innerHTML = '<em><b><font color="red">Verysync <%:NOT RUNNING%></font></b></em>';
 			}
 		}
 	}
 );
 
-function openClient() {
-  if (!window.verysync_port) {
-    alert("Unable to get Verysync port, please check your configuration.");
-    return;
-  }
-  var url = window.location.protocol + "//" + window.location.hostname + ":" + window.verysync_port;
-  window.open(url);
+function openwebui(){
+	var url = window.location.host+":<%=luci.sys.exec("uci -q get verysync.config.port"):gsub("^%s*(.-)%s*$", "%1")%>";
+	window.open('http://'+url,'target','');
 }
 //]]>
 </script>
