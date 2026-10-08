@@ -776,7 +776,6 @@ return view.extend({
 	checkLegacyRules(ipt4save, ipt6save) {
 		if (ipt4save.match(/\n-A /) || ipt6save.match(/\n-A /)) {
 			ui.addNotification(_('Legacy rules detected'), [
-				E('p', _('There are legacy iptables rules present on the system. Mixing iptables and nftables rules is discouraged and may lead to incomplete traffic filtering.')),
 				E('button', {
 					'class': 'btn cbi-button',
 					'click': function() { location.href = 'nftables/iptables' }

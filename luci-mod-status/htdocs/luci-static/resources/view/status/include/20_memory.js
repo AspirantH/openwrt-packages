@@ -36,14 +36,14 @@ return baseclass.extend({
 			available = Math.min(mem.total ?? Infinity, Math.max(0, available + (mem.buffered || 0)));
 
 		var fields = [
-			_('Total Available'), available, mem.total,
+			_('Used'), (mem.total && mem.available) ? (mem.total - available): null, mem.total,
 		];
 
 		if (mem.cached)
 			fields.push(_('Cached'), mem.cached, mem.total);
 
 		if (swap.total > 0)
-			fields.push(_('Swap free'), swap.free, swap.total);
+			fields.push(_('Swap used'), swap.total - swap.free, swap.total);
 
 		var table = E('table', { 'class': 'table' });
 

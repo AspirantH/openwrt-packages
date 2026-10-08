@@ -36,7 +36,7 @@ var callCPUInfo = rpc.declare({
 
 var callCPUUsage = rpc.declare({
 	object: 'luci',
-	method: 'getCPUUsage'
+	method: 'getTempInfo'
 });
 
 return baseclass.extend({
@@ -85,15 +85,9 @@ return baseclass.extend({
 
 		var fields = [
 			_('Hostname'),         boardinfo.hostname,
-			_('Model'),            boardinfo.model + cpubench.cpubench,
-			_('Architecture'),     cpuinfo.cpuinfo || boardinfo.system,
+			_('Architecture'),     (cpuinfo.cpuinfo || boardinfo.system) + ' ' + cpubench.cpubench,
 			_('Target Platform'),  (L.isObject(boardinfo.release) ? boardinfo.release.target : ''),
-			_('Firmware Version'), (L.isObject(boardinfo.release)
-				? '%s%s / '.format(
-					boardinfo.release.description || '',
-					boardinfo.release.revision ? boardinfo.release.revision : ''
-				)
-				: '') + (luciversion || ''),
+			_('Firmware Version'), (L.isObject(boardinfo.release) ? boardinfo.release.description + ' / ' : '') + (luciversion || ''),
 			_('Kernel Version'),   boardinfo.kernel,
 			_('Local Time'),       datestr,
 			_('Uptime'),           systeminfo.uptime ? '%t'.format(systeminfo.uptime) : null,
@@ -101,9 +95,18 @@ return baseclass.extend({
 				systeminfo.load[0] / 65535.0,
 				systeminfo.load[1] / 65535.0,
 				systeminfo.load[2] / 65535.0
-			) : null,
-			_('CPU usage (%)'),    cpuusage.cpuusage
+			) : null
 		];
+
+		if (cpuusage.tempinfo) {
+			fields.splice(6, 0, _('Temperature'));
+			fields.splice(7, 0, cpuusage.tempinfo);
+		}
+
+		if (boardinfo.model != "Default string Default string") {
+			fields.splice(2, 0, _('Model'));
+			fields.splice(3, 0, boardinfo.model);
+		}
 
 		var table = E('table', { 'class': 'table' });
 
@@ -113,6 +116,7 @@ return baseclass.extend({
 				E('td', { 'class': 'td left' }, [ (fields[i + 1] != null) ? fields[i + 1] : '?' ])
 			]));
 		}
+
 
 		return table;
 	}
