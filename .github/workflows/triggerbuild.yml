@@ -127,7 +127,7 @@ jobs:
           window.open(url);\
         }' luci-app-verysync/luasrc/view/verysync/verysync_status.htm
         git_sparse_clone openwrt-25.12 "https://github.com/coolsnowwolf/luci" applications \
-        modules/luci-base modules/luci-mod-network modules/luci-mod-system libs/rpcd-mod-luci && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/leds.js && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/
+        modules/luci-mod-network modules/luci-mod-system libs/rpcd-mod-luci && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/leds.js && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/
         mv -n applications/* luciapp/; rm -rf applications
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-app-oui luci-mod-status
         sed -i "/uci.get('system', '@system\[0\]', 'links')/,/^\t\t}$/d" luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
