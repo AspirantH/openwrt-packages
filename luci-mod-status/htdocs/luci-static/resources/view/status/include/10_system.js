@@ -36,7 +36,7 @@ var callCPUInfo = rpc.declare({
 
 var callCPUUsage = rpc.declare({
 	object: 'luci',
-	method: 'getTempInfo'
+	method: 'getCPUUsage'
 });
 
 return baseclass.extend({
@@ -85,9 +85,15 @@ return baseclass.extend({
 
 		var fields = [
 			_('Hostname'),         boardinfo.hostname,
-			_('Architecture'),     (cpuinfo.cpuinfo || boardinfo.system) + ' ' + cpubench.cpubench,
+			_('Model'),            boardinfo.model + cpubench.cpubench,
+			_('Architecture'),     cpuinfo.cpuinfo || boardinfo.system,
 			_('Target Platform'),  (L.isObject(boardinfo.release) ? boardinfo.release.target : ''),
-			_('Firmware Version'), (L.isObject(boardinfo.release) ? boardinfo.release.description + ' / ' : '') + (luciversion || ''),
+			_('Firmware Version'), (L.isObject(boardinfo.release)
+				? '%s%s / '.format(
+					boardinfo.release.description || '',
+					boardinfo.release.revision ? boardinfo.release.revision : ''
+				)
+				: '') + (luciversion || ''),
 			_('Kernel Version'),   boardinfo.kernel,
 			_('Local Time'),       datestr,
 			_('Uptime'),           systeminfo.uptime ? '%t'.format(systeminfo.uptime) : null,
@@ -95,18 +101,9 @@ return baseclass.extend({
 				systeminfo.load[0] / 65535.0,
 				systeminfo.load[1] / 65535.0,
 				systeminfo.load[2] / 65535.0
-			) : null
+			) : null,
+			_('CPU usage (%)'),    cpuusage.cpuusage
 		];
-
-		if (cpuusage.tempinfo) {
-			fields.splice(6, 0, _('Temperature'));
-			fields.splice(7, 0, cpuusage.tempinfo);
-		}
-
-		if (boardinfo.model != "Default string Default string") {
-			fields.splice(2, 0, _('Model'));
-			fields.splice(3, 0, boardinfo.model);
-		}
 
 		var table = E('table', { 'class': 'table' });
 
@@ -114,19 +111,6 @@ return baseclass.extend({
 			table.appendChild(E('tr', { 'class': 'tr' }, [
 				E('td', { 'class': 'td left', 'width': '33%' }, [ fields[i] ]),
 				E('td', { 'class': 'td left' }, [ (fields[i + 1] != null) ? fields[i + 1] : '?' ])
-			]));
-		}
-
-		if (uci.get('system', '@system[0]', 'links') !== '0') {
-			table.appendChild(E('tr', { 'class': 'tr' }, [
-				E('td', { 'class': 'td', 'colspan': 2, 'style': 'padding: 10px 12px;' }, [
-					E('div', { 'style': 'display: flex; justify-content: space-around; align-items: center; text-align: center;' }, [
-						E('a', { 'href': 'https://openwrt.ai/', 'target': '_blank' }, [ '固件下载与定制' ]),
-						E('a', { 'href': 'https://openwrt.ai/fadian/', 'target': '_blank', 'style': 'color: orangered;' }, [ '赞助' ]),
-						E('a', { 'href': 'https://github.com/kiddin9/Kwrt', 'target': '_blank' }, [ '源码与反馈' ]),
-						E('a', { 'href': 'https://t.me/opkwrt', 'target': '_blank' }, [ 'TG交流' ])
-					])
-				])
 			]));
 		}
 

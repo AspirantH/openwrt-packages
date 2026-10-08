@@ -442,9 +442,6 @@ return view.extend({
 		so.rmempty = false;
 		so.datatype = 'ipaddr("nomask")';
 
-		so = ss.option(form.Value, 'comments', _('Comments'));
-		so.rmempty  = true;
-
 		const ipaddrs = {};
 
 		Object.keys(hosts).forEach(function(mac) {
