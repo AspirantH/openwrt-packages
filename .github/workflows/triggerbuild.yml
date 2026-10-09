@@ -104,7 +104,7 @@ jobs:
           echo "Failed to fetch latest verysync version, keeping original."
         fi
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-app-verysync
-        sed -i 's/{"admin", "nas", "verysync"/{"admin", "services", "verysync"/g' luci-app-verysync/luasrc/controller/verysync.lua
+        sed -i 's/{"admin",[[:space:]]*"nas",[[:space:]]*"verysync"/{"admin", "services", "verysync"/g' luci-app-verysync/luasrc/controller/verysync.lua
         sed -i 's/\[\[nas\]\]/[[services]]/g' luci-app-verysync/luasrc/view/verysync/verysync_status.htm
         sed -i '/^function act_status()/,/^end/c\
         function act_status()\
