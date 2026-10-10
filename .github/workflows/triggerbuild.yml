@@ -8,7 +8,7 @@ name: sync upstream & trigger openwrt build
 on:
   push:
     paths:
-      - '.github/workflows/upstream.yml'
+      - '.github/workflows/triggerbuild.yml'
       - '.gitignore'
       - '.github/diy/**'
   schedule:
