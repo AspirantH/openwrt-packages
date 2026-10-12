@@ -124,6 +124,7 @@ jobs:
           var url = window.location.protocol + "//" + window.location.hostname + ":" + window.verysync_port;\
           window.open(url);\
         }' luci-app-verysync/luasrc/view/verysync/verysync_status.htm
+        sed -i 's|kill -9 `pgrep verysync`|kill -9 $(pgrep -f "^/usr/bin/verysync")|' luci-app-verysync/root/etc/init.d/verysync
         git_sparse_clone openwrt-25.12 "https://github.com/coolsnowwolf/luci" applications \
         modules/luci-mod-network modules/luci-mod-system libs/rpcd-mod-luci && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/leds.js && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/
         mv -n applications/* luciapp/; rm -rf applications
