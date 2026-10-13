@@ -24,6 +24,10 @@ var callSystemInfo = rpc.declare({
 	method: 'info'
 });
 
+var callCPUBench = rpc.declare({
+	object: 'luci',
+	method: 'getCPUBench'
+});
 
 var callCPUInfo = rpc.declare({
 	object: 'luci',
@@ -43,6 +47,7 @@ return baseclass.extend({
 		return Promise.all([
 			L.resolveDefault(callSystemBoard(), {}),
 			L.resolveDefault(callSystemInfo(), {}),
+			L.resolveDefault(callCPUBench(), {}),
 			L.resolveDefault(callCPUInfo(), {}),
 			L.resolveDefault(callCPUUsage(), {}),
 			L.resolveDefault(callLuciVersion(), { revision: _('unknown version'), branch: 'LuCI' }),
@@ -54,7 +59,7 @@ return baseclass.extend({
 	render: function(data) {
 		var boardinfo   = data[0],
 		    systeminfo  = data[1],
-		    
+		    cpubench    = data[2],
 		    cpuinfo     = data[3],
 		    cpuusage    = data[4],
 		    luciversion = data[5],
