@@ -13,5 +13,5 @@ start() {
 }
 
 stop() {
-	kill -9 $(pgrep -f "^/usr/bin/verysync") >/dev/null 2>&1
+	kill -9 $(pgrep -x verysync) >/dev/null 2>&1
 }
