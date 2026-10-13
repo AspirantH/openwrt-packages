@@ -131,11 +131,6 @@ jobs:
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-app-oui luci-mod-status
         sed -i "/uci.get('system', '@system\[0\]', 'links')/,/^\t\t}$/d" luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
         sed -i "s|(cpuinfo.cpuinfo || boardinfo.system) + ' ' + cpubench.cpubench|(cpuinfo.cpuinfo \|\| boardinfo.system)|" luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
-        sed -i "s|(cpuinfo.cpuinfo || boardinfo.system) + ' ' + cpubench.cpubench|(cpuinfo.cpuinfo \|\| boardinfo.system)|" luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
-        sed -i "/var callCPUBench = rpc.declare({/,/});/d" luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
-        sed -i "/L.resolveDefault(callCPUBench(), {}),/d" luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
-        sed -i "s/, cpubench$//" luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
-        sed -i "s/cpubench    = data\[2\],//" luci-mod-status/htdocs/luci-static/resources/view/status/include/10_system.js
         sed -i '/"admin\/system\/leds": {/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
         sed -i '/"fs": { "\/sys\/class\/leds": "directory" }/,/^	},/d' luci-mod-system/root/usr/share/luci/menu.d/luci-mod-system.json
         sed -i '/"init": "led",/d' luci-mod-system/root/usr/share/ucitrack/luci-mod-system-system.json
