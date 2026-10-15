@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-open-box
-PKG_VERSION:=0.1.320
+PKG_VERSION:=$(shell curl -s https://api.github.com/repos/liandu2024/Open-Box/releases/latest | sed -n 's/.*"tag_name": "v\?\([^"]*\)".*/\1/p')
 PKG_RELEASE:=1
 
 PKG_MAINTAINER:=liandu2024
