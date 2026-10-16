@@ -87,22 +87,21 @@ jobs:
         git_clone https://github.com/EasyTier/luci-app-easytier luci-app-easytier1 && mvdir luci-app-easytier1
         git_clone https://github.com/OpenListTeam/OpenList-OpenWRT oplist && mvdir oplist
         git_sparse_clone master "https://github.com/vernesong/OpenClash" luci-app-openclash
-        git_clone https://github.com/kiddin9/luci-app-open-box
-        LATEST_OPENBOX_VER=$(curl -sL \
-          -H "Authorization: Bearer ${{ secrets.TOKEN_OPENWRT }}" \
-          -H "Accept: application/vnd.github+json" \
-          https://api.github.com/repos/liandu2024/Open-Box/releases/latest \
-          | jq -r '.tag_name' | sed -e 's/^v//' -e 's/^release-//')
-        if [ -n "$LATEST_OPENBOX_VER" ] && [ "$LATEST_OPENBOX_VER" != "null" ]; then
-          sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=$LATEST_OPENBOX_VER/" luci-app-open-box/Makefile
-          sed -i "s/PKG_HASH:=.*/PKG_HASH:=skip/" luci-app-open-box/Makefile
-          echo "✅ luci-app-open-box version updated to $LATEST_OPENBOX_VER"
-        else
-          echo "⚠️ Failed to fetch latest luci-app-open-box version, keeping original."
-        fi
+        #git_clone https://github.com/kiddin9/luci-app-open-box
+        #LATEST_OPENBOX_VER=$(curl -sL \
+        #  -H "Authorization: Bearer ${{ secrets.TOKEN_OPENWRT }}" \
+        #  -H "Accept: application/vnd.github+json" \
+        #  https://api.github.com/repos/liandu2024/Open-Box/releases/latest \
+        #  | jq -r '.tag_name' | sed -e 's/^v//' -e 's/^release-//')
+        #if [ -n "$LATEST_OPENBOX_VER" ] && [ "$LATEST_OPENBOX_VER" != "null" ]; then
+        #  sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=$LATEST_OPENBOX_VER/" luci-app-open-box/Makefile
+        #  sed -i "s/PKG_HASH:=.*/PKG_HASH:=skip/" luci-app-open-box/Makefile
+        #  echo "luci-app-open-box version updated to $LATEST_OPENBOX_VER"
+        #else
+        #  echo "Failed to fetch latest luci-app-open-box version, keeping original."
+        #fi
 
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora
-        git_clone https://github.com/anothaDev/luci-theme-vantage vantage;mv -f vantage/*vantage ./;rm -rf vantage
         git_sparse_clone master "https://github.com/coolsnowwolf/packages" net/verysync
         LATEST_VER=$(curl -s http://dl.verysync.com/releases/ \
           | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+/' \
