@@ -27,11 +27,11 @@
 +++ b/luci-theme-vantage/htdocs/luci-static/vantage/vantage.css
 @@ -14,9 +14,9 @@
  	color-scheme: light;
-
+ 
  	--font: system-ui, -apple-system, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, sans-serif;
 -	--mono: ui-monospace, "JetBrains Mono", "SFMono-Regular", "Cascadia Mono", Menlo, Consolas, monospace;
 +	--mono: ui-monospace, "JetBrains Mono", "SFMono-Regular", "Cascadia Mono", system-ui, Menlo, Consolas, monospace;
-
+ 
 -	--fs-micro: 10.5px;
 +	--fs-micro: 11.5px;
  	--fs-sm: 12px;
@@ -39,7 +39,7 @@
  	--fs-md: 14px;
 @@ -37,7 +37,7 @@
  	--r-lg: 8px;
-
+ 
  	--rail-w: 56px;
 -	--rail-w-pinned: 224px;
 +	--rail-w-pinned: 204px;
@@ -53,7 +53,7 @@
 -.vt-rail-label { overflow: hidden; text-overflow: ellipsis; display: none; flex: 1 1 auto; }
 +.vt-rail-label { overflow: hidden; text-overflow: ellipsis; display: none; flex: 1 1 auto; font-size: var(--fs-md) }
  .vt-rail-caret { display: none; width: 14px; height: 14px; color: var(--text-3); transition: transform .15s; }
-
+ 
  .vt-rail-link:hover, .vt-rail-item.is-open > .vt-rail-link { background: var(--s3); color: var(--text); }
 @@ -371,7 +371,7 @@ html[data-rail="pinned"] .vt-frame { margin-left: var(--rail-w-pinned); }
  	padding: 5px 10px;
@@ -77,10 +77,7 @@
  }
  /* card header row */
  .cbi-section > h3:first-child, .cbi-section > legend:first-child, .cbi-section > .cbi-title:first-child,
-@@ -1982,7 +1988,28 @@ html:not([data-darkmode="true"]) .vt-login-page {
- 		linear-gradient(90deg, rgba(20, 23, 26, .04) 1px, transparent 1px) 0 0 / 32px 32px,
- 		var(--bg);
- }
+@@ -1982,3 +1988,24 @@ html:not([data-darkmode="true"]) .vt-login-page {
 -.vt-login { width: min(380px, 100%); }
 +.vt-login {
 +	width: min(380px, 100%);
@@ -127,7 +124,7 @@
 +LUCI_DEPENDS:=+luci-base +luci-app-vantage
  LUCI_MAINTAINER:=anothaDev <10740588+anothaDev@users.noreply.github.com>
  LUCI_URL:=https://github.com/anothaDev/luci-theme-vantage
-
+ 
 diff --git a/luci-app-vantage/root/usr/share/luci/menu.d/luci-app-vantage.json b/luci-app-vantage/root/usr/share/luci/menu.d/z-luci-app-vantage.json
 similarity index 85%
 rename from luci-app-vantage/root/usr/share/luci/menu.d/luci-app-vantage.json
