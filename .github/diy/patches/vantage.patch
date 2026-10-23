@@ -110,7 +110,7 @@ index ad0a166..c58c860 100644
  	var dark = (p === 'dark') || (p !== 'light' && !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches));
  	r.setAttribute('data-darkmode', dark ? 'true' : 'false');
  	r.setAttribute('data-theme', p);
-@@ -46,8 +48,15 @@
+@@ -46,9 +48,16 @@
  {% if (authed): %}
  	<nav class="vt-rail" id="vt-rail" aria-label="{{ entityencode(_('Main navigation'), true) }}">
  		<a class="vt-brand" href="{{ dispatcher.build_url('admin') }}" aria-label="{{ entityencode(_('Home'), true) }}">
