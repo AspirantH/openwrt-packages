@@ -22,7 +22,6 @@
  .vt-app .vt-orb {
  	position: relative; flex: none;
  	width: 38px; height: 38px; border-radius: 50%;
-
 --- a/luci-theme-vantage/htdocs/luci-static/vantage/vantage.css
 +++ b/luci-theme-vantage/htdocs/luci-static/vantage/vantage.css
 @@ -14,9 +14,9 @@
@@ -64,7 +63,6 @@
  	white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
  	text-decoration: none !important;
  }
-
 --- a/luci-theme-vantage/Makefile
 +++ b/luci-theme-vantage/Makefile
 @@ -17,7 +17,7 @@ PKG_LICENSE:=GPL-3.0-or-later
@@ -90,7 +88,6 @@ index ad0a166..c58c860 100644
  		"title": "Dashboard",
  		"order": 1,
  		"action": {
-
 --- a/luci-theme-vantage/ucode/template/themes/vantage/header.ut
 +++ b/luci-theme-vantage/ucode/template/themes/vantage/header.ut
 @@ -12,6 +12,8 @@
@@ -129,7 +126,6 @@ index ad0a166..c58c860 100644
  		</a>
  		<ul class="vt-rail-list" id="vt-rail-list"></ul>
  		<div class="vt-rail-foot">
-
 --- a/luci-theme-vantage/ucode/template/themes/vantage/sysauth.ut
 +++ b/luci-theme-vantage/ucode/template/themes/vantage/sysauth.ut
 @@ -12,6 +12,8 @@
