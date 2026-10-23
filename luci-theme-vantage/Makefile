@@ -57,6 +57,6 @@ endef
 
 # In the LuCI tree (themes/luci-theme-vantage) use ../../luci.mk; built from
 # an external feed, use the luci feed installed in the build tree.
-include $(TOPDIR)/feeds/luci/luci.mk)
+include $(TOPDIR)/feeds/luci/luci.mk
 
 # call BuildPackage - OpenWrt buildroot signature
