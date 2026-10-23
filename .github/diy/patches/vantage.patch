@@ -64,28 +64,6 @@
  	white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
  	text-decoration: none !important;
  }
-@@ -716,6 +716,12 @@ html:has(.vt-tabs:not([hidden])) { --stick-top: calc(var(--top-h) + 41px); }
- 	border-radius: 10px;
- 	box-shadow: var(--v-shadow);
- 	min-width: 0;
-+	background-clip: padding-box;
-+}
-+.cbi-section > legend:first-child{
-+    margin-left: 10px !important;
-+    padding: 10px !important;
-+    border: none !important;
- }
- /* card header row */
- .cbi-section > h3:first-child, .cbi-section > legend:first-child, .cbi-section > .cbi-title:first-child,
-@@ -2051,7 +2057,7 @@ html:not([data-darkmode="true"]) .vt-login-page {
- .cbi-section-table .ifacebox-body img { width: 18px; height: 18px; }
- [id$="-ifc-description"], .cbi-value-field > div[id$="-ifc-description"] {
- 	display: flex; flex-wrap: wrap; align-items: flex-start;
--	gap: 10px 28px;
-+	gap: 10px 40px;
- 	max-width: 72rem;
- }
- [id$="-ifc-description"] > br { display: none; }
 
 --- a/luci-theme-vantage/Makefile
 +++ b/luci-theme-vantage/Makefile
