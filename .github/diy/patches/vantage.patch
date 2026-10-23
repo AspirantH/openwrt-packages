@@ -76,7 +76,7 @@
  }
  /* card header row */
  .cbi-section > h3:first-child, .cbi-section > legend:first-child, .cbi-section > .cbi-title:first-child,
-@@ -1982,3 +1988,24 @@ html:not([data-darkmode="true"]) .vt-login-page {
+@@ -1982,2 +1988,24 @@ html:not([data-darkmode="true"]) .vt-login-page {
 -.vt-login { width: min(380px, 100%); }
 +.vt-login {
 +	width: min(380px, 100%);
