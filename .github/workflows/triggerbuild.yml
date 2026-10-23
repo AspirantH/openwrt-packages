@@ -241,6 +241,13 @@ jobs:
           */Makefile
 
         sed -i 's|include $(TOPDIR)/feeds/luci/luci.mk)|include $(TOPDIR)/feeds/luci/luci.mk|' luci-theme-vantage/Makefile
+        sed -i 's|"admin/dashboard"|"admin/status/dashboard"|' luci-app-vantage/root/usr/share/luci/menu.d/luci-app-vantage.json
+        mv luci-app-vantage/root/usr/share/luci/menu.d/luci-app-vantage.json luci-app-vantage/root/usr/share/luci/menu.d/z-luci-app-vantage.json
+        sed -i 's|<span class="vt-brand-word">Vantage</span>|<span class="vt-brand-word">{{ hostname }}</span>|' luci-theme-vantage/ucode/template/themes/vantage/header.ut
+        sed -i 's|<h1 class="vt-login-title">Vantage</h1>|<h1 class="vt-login-title">{{ hostname }}</h1>|' luci-theme-vantage/ucode/template/themes/vantage/sysauth.ut
+        sed -i "/const lang = entityencode(dispatcher.lang ?? 'en', true);/a\\\tconst boardinfo = ubus.call(\"system\", \"board\");\n\tconst hostname = striptags(boardinfo?.hostname ?? '?');" luci-theme-vantage/ucode/template/themes/vantage/header.ut
+        sed -i "/const tls_ports = uniq(filter(map(tls, e => +(match(e, /\\\\d+\$/)?.[0] ?? 0)), p => (p > 0 && p <= 65535)));/a\\\tconst boardinfo = ubus.call(\"system\", \"board\");\n\tconst hostname = striptags(boardinfo?.hostname ?? '?');" luci-theme-vantage/ucode/template/themes/vantage/sysauth.ut
+        sed -i "s|var p = 'auto', rail = '';|var p = 'auto', rail = 'pinned';|; s|rail = localStorage.getItem('vantage.rail') || '';|rail = localStorage.getItem('vantage.rail') || 'pinned';|" luci-theme-vantage/ucode/template/themes/vantage/header.ut
 
         chmod +x .github/diy/*.sh
         bash .github/diy/create_acl_for_luci.sh -a >/dev/null 2>&1 || true
