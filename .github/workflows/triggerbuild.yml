@@ -240,6 +240,8 @@ jobs:
           -e 's?include .*/luci.mk?include $(TOPDIR)/feeds/luci/luci.mk?' \
           */Makefile
 
+        sed -i 's|include $(TOPDIR)/feeds/luci/luci.mk)|include $(TOPDIR)/feeds/luci/luci.mk|' luci-theme-vantage/Makefile
+
         chmod +x .github/diy/*.sh
         bash .github/diy/create_acl_for_luci.sh -a >/dev/null 2>&1 || true
         bash .github/diy/convert_translation.sh -a >/dev/null 2>&1 || true
