@@ -77,34 +77,7 @@
  }
  /* card header row */
  .cbi-section > h3:first-child, .cbi-section > legend:first-child, .cbi-section > .cbi-title:first-child,
-@@ -1982,3 +1988,24 @@ html:not([data-darkmode="true"]) .vt-login-page {
--.vt-login { width: min(380px, 100%); }
-+.vt-login {
-+	width: min(380px, 100%);
-+	z-index: 1;
-+}
-+.vt-login-page{
-+	background:none !important;
-+}
-+.vt-login-page::before {
-+	content: "";
-+	position: absolute;
-+	inset: 0;
-+	background-image: url('/luci-static/vantage/pattern.svg');
-+	background-size: 440px auto;
-+	background-position: center;
-+	opacity: 0.4;
-+}
-+html:not([data-darkmode="true"]) .vt-login-page::before {
-+	opacity: 0.7;
-+}
-+#packages {
-+ width: 100% !important;
-+}
- .vt-login-card {
- 	padding: var(--sp-6);
- 	background: var(--s1);
-@@ -2051,7 +2075,7 @@ html:not([data-darkmode="true"]) .vt-login-page {
+@@ -2051,7 +2057,7 @@ html:not([data-darkmode="true"]) .vt-login-page {
  .cbi-section-table .ifacebox-body img { width: 18px; height: 18px; }
  [id$="-ifc-description"], .cbi-value-field > div[id$="-ifc-description"] {
  	display: flex; flex-wrap: wrap; align-items: flex-start;
