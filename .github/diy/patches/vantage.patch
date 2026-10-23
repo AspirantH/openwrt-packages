@@ -63,6 +63,55 @@
  	white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
  	text-decoration: none !important;
  }
+@@ -716,6 +716,12 @@ html:has(.vt-tabs:not([hidden])) { --stick-top: calc(var(--top-h) + 41px); }
+ 	border-radius: 10px;
+ 	box-shadow: var(--v-shadow);
+ 	min-width: 0;
++	background-clip: padding-box;
++}
++.cbi-section > legend:first-child{
++    margin-left: 10px !important;
++    padding: 10px !important;
++    border: none !important;
+ }
+ /* card header row */
+ .cbi-section > h3:first-child, .cbi-section > legend:first-child, .cbi-section > .cbi-title:first-child,
+@@ -1982,3 +1988,24 @@ html:not([data-darkmode="true"]) .vt-login-page {
+-.vt-login { width: min(380px, 100%); }
++.vt-login {
++	width: min(380px, 100%);
++	z-index: 1;
++}
++.vt-login-page{
++	background:none !important;
++}
++.vt-login-page::before {
++	content: "";
++	position: absolute;
++	inset: 0;
++	background-image: url('/luci-static/vantage/pattern.svg');
++	background-size: 440px auto;
++	background-position: center;
++	opacity: 0.4;
++}
++html:not([data-darkmode="true"]) .vt-login-page::before {
++	opacity: 0.7;
++}
++#packages {
++ width: 100% !important;
++}
+ .vt-login-card {
+ 	padding: var(--sp-6);
+ 	background: var(--s1);
+@@ -2051,7 +2078,7 @@ html:not([data-darkmode="true"]) .vt-login-page {
+ .cbi-section-table .ifacebox-body img { width: 18px; height: 18px; }
+ [id$="-ifc-description"], .cbi-value-field > div[id$="-ifc-description"] {
+ 	display: flex; flex-wrap: wrap; align-items: flex-start;
+-	gap: 10px 28px;
++	gap: 10px 40px;
+ 	max-width: 72rem;
+ }
+ [id$="-ifc-description"] > br { display: none; }
 --- a/luci-theme-vantage/Makefile
 +++ b/luci-theme-vantage/Makefile
 @@ -17,7 +17,7 @@ PKG_LICENSE:=GPL-3.0-or-later
@@ -110,7 +159,7 @@ index ad0a166..c58c860 100644
  	var dark = (p === 'dark') || (p !== 'light' && !!(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches));
  	r.setAttribute('data-darkmode', dark ? 'true' : 'false');
  	r.setAttribute('data-theme', p);
-@@ -46,9 +48,16 @@
+@@ -46,8 +48,15 @@
  {% if (authed): %}
  	<nav class="vt-rail" id="vt-rail" aria-label="{{ entityencode(_('Main navigation'), true) }}">
  		<a class="vt-brand" href="{{ dispatcher.build_url('admin') }}" aria-label="{{ entityencode(_('Home'), true) }}">
