@@ -8,8 +8,8 @@
 
 include $(TOPDIR)/rules.mk
 
-VER_MAIN:=3.3.3
-VER_BETA:=beta
+VER_MAIN:=3.4.0
+VER_BETA:=
 SUB_FOLDER:=$(VER_MAIN)_wanji
 
 PKG_NAME:=lucky
