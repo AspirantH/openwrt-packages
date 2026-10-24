@@ -8,7 +8,7 @@
 
 include $(TOPDIR)/rules.mk
 
-VER_MAIN:=3.4.0
+VER_MAIN:=3.4.1
 VER_BETA:=
 SUB_FOLDER:=$(VER_MAIN)_wanji
 
