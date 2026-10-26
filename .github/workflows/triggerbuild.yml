@@ -110,6 +110,12 @@ jobs:
           | sort -rV \
           | head -n 1 \
           | sed 's/^v//')
+
+        if [ -z "$LATEST_VER" ] || [ "$(echo -e "$LATEST_VER\n2.21.3" | sort -rV | head -n 1)" = "2.21.3" ]; then
+          LATEST_VER="2.33.2"
+          echo "⚠️  Failed to fetch valid version, fallback to predefined stable version $LATEST_VER"
+        fi
+
         if [ -n "$LATEST_VER" ]; then
           sed -i "s/PKG_VERSION:=.*/PKG_VERSION:=$LATEST_VER/" verysync/Makefile
           sed -i "s/PKG_HASH_VERYSYNC:=.*/PKG_HASH_VERYSYNC:=skip/" verysync/Makefile
@@ -117,6 +123,7 @@ jobs:
         else
           echo "Failed to fetch latest verysync version, keeping original."
         fi
+
         git_sparse_clone main "https://github.com/kiddin9/op-packages" luci-app-verysync
         sed -i 's/{"admin",[[:space:]]*"nas",[[:space:]]*"verysync"/{"admin", "services", "verysync"/g' luci-app-verysync/luasrc/controller/verysync.lua
         sed -i 's/\[\[nas\]\]/[[services]]/g' luci-app-verysync/luasrc/view/verysync/verysync_status.htm
