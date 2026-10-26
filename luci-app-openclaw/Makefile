@@ -6,14 +6,14 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-openclaw
-PKG_VERSION:=2.2.3
+PKG_VERSION:=$(strip $(shell cat $(CURDIR)/VERSION 2>/dev/null || echo "1.0.0"))
 PKG_RELEASE:=1
 
 PKG_MAINTAINER:=10000ge10000 <10000ge10000@users.noreply.github.com>
 PKG_LICENSE:=GPL-3.0
 
 LUCI_TITLE:=OpenClaw AI 网关 LuCI 管理插件
-LUCI_DEPENDS:=+luci-compat +luci-base +curl +openssl-util +script-utils +tar +libstdcpp
+LUCI_DEPENDS:=+luci-compat +luci-base +curl +openssl-util +script-utils +tar +libstdcpp6
 LUCI_PKGARCH:=all
 
 # 始终使用 package.mk 并显式定义 Package/...。
@@ -84,7 +84,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
 	$(INSTALL_DATA) ./root/usr/share/rpcd/acl.d/luci-app-openclaw.json $(1)/usr/share/rpcd/acl.d/luci-app-openclaw.json
 	$(INSTALL_DIR) $(1)/usr/share/openclaw
-	echo 2.2.3 > $(1)/usr/share/openclaw/VERSION
+	$(INSTALL_DATA) ./VERSION $(1)/usr/share/openclaw/VERSION
 	$(INSTALL_BIN) ./root/usr/share/openclaw/oc-config.sh $(1)/usr/share/openclaw/oc-config.sh
 	$(INSTALL_DATA) ./root/usr/share/openclaw/web-pty.js $(1)/usr/share/openclaw/web-pty.js
 	$(INSTALL_BIN) ./root/usr/share/openclaw/oc-config-interactive.js $(1)/usr/share/openclaw/oc-config-interactive.js
