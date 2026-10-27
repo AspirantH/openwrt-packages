@@ -6,7 +6,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-openclaw
-PKG_VERSION:=$(strip $(shell cat $(CURDIR)/VERSION 2>/dev/null || echo "1.0.0"))
+PKG_VERSION:=2.2.3
 PKG_RELEASE:=1
 
 PKG_MAINTAINER:=10000ge10000 <10000ge10000@users.noreply.github.com>
@@ -84,7 +84,7 @@ define Package/$(PKG_NAME)/install
 	$(INSTALL_DIR) $(1)/usr/share/rpcd/acl.d
 	$(INSTALL_DATA) ./root/usr/share/rpcd/acl.d/luci-app-openclaw.json $(1)/usr/share/rpcd/acl.d/luci-app-openclaw.json
 	$(INSTALL_DIR) $(1)/usr/share/openclaw
-	$(INSTALL_DATA) ./VERSION $(1)/usr/share/openclaw/VERSION
+	echo 2.2.3 > $(1)/usr/share/openclaw/VERSION
 	$(INSTALL_BIN) ./root/usr/share/openclaw/oc-config.sh $(1)/usr/share/openclaw/oc-config.sh
 	$(INSTALL_DATA) ./root/usr/share/openclaw/web-pty.js $(1)/usr/share/openclaw/web-pty.js
 	$(INSTALL_BIN) ./root/usr/share/openclaw/oc-config-interactive.js $(1)/usr/share/openclaw/oc-config-interactive.js
