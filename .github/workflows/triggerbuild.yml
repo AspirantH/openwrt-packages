@@ -102,7 +102,7 @@ jobs:
         #fi
 
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora
-        git_clone https://github.com/anothaDev/luci-theme-vantage vantage;mv -f vantage/*vantage ./;rm -rf vantage
+        git_sparse_clone main "https://github.com/anothaDev/luci-theme-vantage" luci-app-vantage
         git_sparse_clone master "https://github.com/coolsnowwolf/packages" net/verysync
         LATEST_VER=$(curl -s http://dl.verysync.com/releases/ \
           | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+/' \
@@ -159,12 +159,9 @@ jobs:
         sed -i 's/"getLEDs", //g' luci-mod-system/root/usr/share/rpcd/acl.d/luci-mod-system.json
         sed -i 's/+luci-base/+luci-base +luci-app-oui +luci-mod-dashboard/' luci-mod-status/Makefile
         
-        #git_clone https://github.com/10000ge10000/luci-app-openclaw && rm -rf luci-app-openclaw/.g*
-        #sed -i 's/+libstdcpp6/+libstdcpp/g' luci-app-openclaw/Makefile
         git_sparse_clone openwrt-25.12 "https://github.com/coolsnowwolf/luci" applications/luci-app-diskman
         git_sparse_clone openwrt-25.12 "https://github.com/immortalwrt/luci" applications/luci-app-zerotier
         git_clone https://github.com/tty228/luci-app-wechatpush
-        #git_clone https://github.com/sbwml/luci-app-dockerman
         git_sparse_clone main "https://github.com/stackia/rtp2httpd" openwrt-support/rtp2httpd openwrt-support/luci-app-rtp2httpd && mv -f rtp2httpd/Makefile.versioned rtp2httpd/Makefile && mv -f luci-app-rtp2httpd/Makefile.versioned luci-app-rtp2httpd/Makefile
 
     - name: Delete duplicated packages
@@ -249,15 +246,15 @@ jobs:
           -e "s/\(\(^\| \|	\)\(PKG_HASH\|PKG_MD5SUM\|PKG_MIRROR_HASH\|HASH\):=\).*/\1skip/" \
           -e 's?include .*/luci.mk?include $(TOPDIR)/feeds/luci/luci.mk?' \
           */Makefile
-
-        sed -i 's|include $(TOPDIR)/feeds/luci/luci.mk)|include $(TOPDIR)/feeds/luci/luci.mk|' luci-theme-vantage/Makefile
+          
         sed -i 's|"admin/dashboard"|"admin/status/dashboard"|' luci-app-vantage/root/usr/share/luci/menu.d/luci-app-vantage.json
         mv luci-app-vantage/root/usr/share/luci/menu.d/luci-app-vantage.json luci-app-vantage/root/usr/share/luci/menu.d/z-luci-app-vantage.json
-        sed -i 's|<span class="vt-brand-word">Vantage</span>|<span class="vt-brand-word">{{ hostname }}</span>|' luci-theme-vantage/ucode/template/themes/vantage/header.ut
-        sed -i 's|<h1 class="vt-login-title">Vantage</h1>|<h1 class="vt-login-title">{{ hostname }}</h1>|' luci-theme-vantage/ucode/template/themes/vantage/sysauth.ut
-        sed -i "/const lang = entityencode(dispatcher.lang ?? 'en', true);/a\\\tconst boardinfo = ubus.call(\"system\", \"board\");\n\tconst hostname = striptags(boardinfo?.hostname ?? '?');" luci-theme-vantage/ucode/template/themes/vantage/header.ut
-        sed -i "/const tls_ports = uniq(filter(map(tls, e => +(match(e, /\\\\d+\$/)?.[0] ?? 0)), p => (p > 0 && p <= 65535)));/a\\\tconst boardinfo = ubus.call(\"system\", \"board\");\n\tconst hostname = striptags(boardinfo?.hostname ?? '?');" luci-theme-vantage/ucode/template/themes/vantage/sysauth.ut
-        sed -i "s|var p = 'auto', rail = '';|var p = 'auto', rail = 'pinned';|; s|rail = localStorage.getItem('vantage.rail') || '';|rail = localStorage.getItem('vantage.rail') || 'pinned';|" luci-theme-vantage/ucode/template/themes/vantage/header.ut
+        #sed -i 's|include $(TOPDIR)/feeds/luci/luci.mk)|include $(TOPDIR)/feeds/luci/luci.mk|' luci-theme-vantage/Makefile
+        #sed -i 's|<span class="vt-brand-word">Vantage</span>|<span class="vt-brand-word">{{ hostname }}</span>|' luci-theme-vantage/ucode/template/themes/vantage/header.ut
+        #sed -i 's|<h1 class="vt-login-title">Vantage</h1>|<h1 class="vt-login-title">{{ hostname }}</h1>|' luci-theme-vantage/ucode/template/themes/vantage/sysauth.ut
+        #sed -i "/const lang = entityencode(dispatcher.lang ?? 'en', true);/a\\\tconst boardinfo = ubus.call(\"system\", \"board\");\n\tconst hostname = striptags(boardinfo?.hostname ?? '?');" luci-theme-vantage/ucode/template/themes/vantage/header.ut
+        #sed -i "/const tls_ports = uniq(filter(map(tls, e => +(match(e, /\\\\d+\$/)?.[0] ?? 0)), p => (p > 0 && p <= 65535)));/a\\\tconst boardinfo = ubus.call(\"system\", \"board\");\n\tconst hostname = striptags(boardinfo?.hostname ?? '?');" luci-theme-vantage/ucode/template/themes/vantage/sysauth.ut
+        #sed -i "s|var p = 'auto', rail = '';|var p = 'auto', rail = 'pinned';|; s|rail = localStorage.getItem('vantage.rail') || '';|rail = localStorage.getItem('vantage.rail') || 'pinned';|" luci-theme-vantage/ucode/template/themes/vantage/header.ut
 
         chmod +x .github/diy/*.sh
         bash .github/diy/create_acl_for_luci.sh -a >/dev/null 2>&1 || true
