@@ -368,6 +368,7 @@ return baseclass.extend({
 	/* raw: { board, info, ifaces, devs, wifi, iwinfo: { ifname: info },
 	          assoc: { ifname: [ station ] }, hapd: { ifname: { clients } },
 	          hapdStatus: { ifname: status }, hints, aliases, rdns, mdns,
+	          fdb: [ luci.vantage wired host ] (-> wiredHosts),
 	          vendor: fn(mac) -> name|null } */
 	build: function(raw) {
 		raw = raw || {};
@@ -382,13 +383,20 @@ return baseclass.extend({
 			var firstIf = ifs.filter(function(i) { return i.ifname && own(iw, i.ifname); })[0];
 			var info0 = firstIf ? obj(iw[firstIf.ifname]) : {};
 			var band = wifi.bandKey(cfg.band, info0.frequency || rIw.frequency);
-			var ht = wifi.htmode(info0.htmode || cfg.htmode);
+			/* a radio read from the config (luci.vantage wireless without
+			   netifd: vendor drivers such as mtkwifi) has no run state, and
+			   its driver may report less than it runs: mtkwifi's iwinfo
+			   stops at HE with EHT configured. Elsewhere iwinfo wins. */
+			var fromCfg = r.source === 'config', cfgHt = wifi.htmode(cfg.htmode);
+			var htmode = fromCfg && cfgHt.std === 'EHT' ? cfg.htmode : (info0.htmode || cfg.htmode || null);
+			var ht = wifi.htmode(htmode);
 			var chan = num(info0.channel || rIw.channel || cfg.channel) || null;
+			var live = ifs.some(function(i) { return typeof i.ifname === 'string' && own(iw, i.ifname) && num(obj(iw[i.ifname]).channel) > 0; });
 			var radio = {
 				id: rname,
 				band: band,
 				bandLabel: wifi.bandLabel(band),
-				up: r.up === true,
+				up: r.up === true || (fromCfg && live),
 				disabled: r.disabled === true || cfg.disabled === true || cfg.disabled === '1',
 				pending: r.pending === true,
 				channel: chan,
@@ -398,7 +406,7 @@ return baseclass.extend({
 				width: ht.width,
 				std: ht.std,
 				gen: wifi.genName(ht.std, band),
-				htmode: info0.htmode || cfg.htmode || null,
+				htmode: htmode,
 				txpower: finite(info0.txpower) ? info0.txpower : (finite(rIw.txpower) ? rIw.txpower : null),
 				txpowerCfg: cfg.txpower != null && isFinite(+cfg.txpower) ? +cfg.txpower : null,
 				noise: wifi.noise(finite(info0.noise) ? info0.noise : rIw.noise),
@@ -458,6 +466,29 @@ return baseclass.extend({
 				if (mac) everyone.push({ mac: mac, ips: self.hintAddrs(hintOf(mac), subnets) });
 			});
 		});
+		/* wired hosts: what the bridges learned on ports that are not
+		   Wi-Fi, once per MAC (the entry heard last, a learned one before
+		   a static one), stations left out */
+		var staMacs = Object.create(null), fdb = Object.create(null), wiredMacs = [];
+		everyone.forEach(function(e) { staMacs[e.mac] = true; });
+		arr(raw.fdb).forEach(function(h) {
+			var mac = h && names.normMac(h.mac);
+			if (!mac || staMacs[mac] || typeof h.port !== 'string' || self.isWireless(h.port, devs[h.port], wlNames)) return;
+			var seen = finite(h.seen) && h.seen >= 0 ? h.seen : null, prev = fdb[mac];
+			if (prev && (seen == null || (prev.seen != null && prev.seen <= seen))) return;
+			if (!prev) wiredMacs.push(mac);
+			fdb[mac] = { port: h.port, bridge: typeof h.bridge === 'string' ? h.bridge : null, vlan: finite(h.vlan) ? h.vlan : null, seen: seen };
+		});
+		/* the network on each bridge, and its IPv4 subnets for the hosts'
+		   addresses */
+		var lans = Object.create(null);
+		arr(raw.ifaces).forEach(function(i) {
+			var d = i && (i.l3_device || i.device);
+			if (typeof d === 'string' && i.interface && !lans[d])
+				lans[d] = { name: String(i.interface), ipv4: arr(i['ipv4-address']).map(function(a) { return a && a.address ? a.address + '/' + a.mask : null; }).filter(Boolean) };
+		});
+		function wiredSubnets(mac) { var l = fdb[mac].bridge && lans[fdb[mac].bridge]; return l && l.ipv4.length ? l.ipv4 : subnets; }
+		wiredMacs.forEach(function(mac) { everyone.push({ mac: mac, ips: self.hintAddrs(hintOf(mac), wiredSubnets(mac)) }); });
 		var mdns = names.mdnsForStations(raw.mdns, everyone);
 
 		ssids.forEach(function(ss) {
@@ -525,6 +556,47 @@ return baseclass.extend({
 			});
 		});
 
+		/* A host alone on its port has the port's link and traffic to
+		   itself; hosts sharing one (behind a switch or another access
+		   point) only share the port's. The gateway is found by the
+		   address the host hints give it. */
+		var perPort = Object.create(null), gwMac = null;
+		wiredMacs.forEach(function(mac) { var p = fdb[mac].port; perPort[p] = (perPort[p] || 0) + 1; });
+		if (uplink && uplink.gateway) Object.keys(hints).forEach(function(k) {
+			var mac = names.normMac(k);
+			if (mac && arr(obj(hints[k]).ipaddrs).indexOf(uplink.gateway) >= 0) gwMac = mac;
+		});
+		var wired = wiredMacs.map(function(mac) {
+			var h = fdb[mac], d = devs[h.port], hint = hintOf(mac), ips = self.hintAddrs(hint, wiredSubnets(mac));
+			var alias = raw.aliases && raw.aliases[mac];
+			var vendor = typeof raw.vendor === 'function' ? raw.vendor(names.ouiKey(mac)) : null;
+			var nm = names.resolve({ mac: mac, alias: alias, ips: ips, rdns: raw.rdns, mdns: mdns, hint: hint, wps: null, vendor: vendor });
+			return {
+				mac: mac,
+				macLabel: fmt.mac(mac),
+				name: nm.name,
+				nameSource: nm.source,
+				nameSourceLabel: nm.sourceLabel,
+				icon: nm.icon,
+				secondary: nm.secondary,
+				isPrivate: nm.isPrivate,
+				alias: alias ? alias.name : null,
+				aliasSid: alias ? alias.sid : null,
+				vendor: nm.source === 'vendor' ? vendor : null,
+				ips: ips,
+				port: h.port,
+				bridge: h.bridge,
+				network: h.bridge && lans[h.bridge] ? lans[h.bridge].name : null,
+				vlan: h.vlan,
+				seen: h.seen,
+				peers: perPort[h.port],
+				shared: perPort[h.port] > 1,
+				speed: d ? self.parseSpeed(d.speed) : null,
+				carrier: d ? d.carrier !== false : null,
+				gateway: mac === gwMac
+			};
+		});
+
 		var mem = this.memory(info.memory);
 		var release = obj(board.release);
 		return {
@@ -547,7 +619,8 @@ return baseclass.extend({
 			networks: this.networks(raw.ifaces, uplink),
 			radios: radios,
 			ssids: ssids,
-			clients: clients
+			clients: clients,
+			wiredHosts: wired
 		};
 	},
 
