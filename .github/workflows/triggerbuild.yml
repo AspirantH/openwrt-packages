@@ -103,6 +103,7 @@ jobs:
 
         git_clone https://github.com/eamonxg/luci-theme-aurora luci-theme-aurora
         git_clone https://github.com/mrjoechen/luci-theme-carbon luci-theme-carbon
+        rm -rf luci-theme-carbon/{scripts,preview,keys,tests} luci-theme-carbon/.??* 2>/dev/null || true; find luci-theme-carbon -maxdepth 1 -type f -name '*.json' -delete 2>/dev/null || true
         git_sparse_clone main "https://github.com/anothaDev/luci-theme-vantage" luci-app-vantage
         git_sparse_clone master "https://github.com/coolsnowwolf/packages" net/verysync
         LATEST_VER=$(curl -s http://dl.verysync.com/releases/ \
