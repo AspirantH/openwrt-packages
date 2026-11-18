@@ -4,7 +4,7 @@ PKG_NAME:=rtp2httpd
 
 RELEASE_VERSION:=3.17.2
 
-PKG_VERSION:=$(shell echo "$(RELEASE_VERSION)" | sed 's/-\([a-z]*\)\.\([0-9]*\)/_\1\2/g')
+PKG_VERSION:=3.17.2
 PKG_RELEASE:=1
 PKG_MAINTAINER:=Stackie Jia <jsq2627@gmail.com>
 PKG_LICENSE:=GPL-2.0-or-later
