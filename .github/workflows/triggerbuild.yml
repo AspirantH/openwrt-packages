@@ -148,7 +148,23 @@ jobs:
           var url = window.location.protocol + "//" + window.location.hostname + ":" + window.verysync_port;\
           window.open(url);\
         }' luci-app-verysync/luasrc/view/verysync/verysync_status.htm
-        sed -i 's|kill -9 `pgrep verysync`|kill -9 $(pgrep -f "^/usr/bin/verysync")|' luci-app-verysync/root/etc/init.d/verysync
+        sed -i '/^STOP=10$/a PIDFILE=/var/run/verysync.pid' luci-app-verysync/root/etc/init.d/verysync
+        sed -i '/^start()/,/^}/c\
+        start() {\
+          local enabled="$(/sbin/uci get verysync.config.enabled)"\
+          local port="$(/sbin/uci get verysync.config.port)"\
+          stop\
+          [ "${enabled}" = "1" ] || return 0\
+          export HOME="/root/"\
+          /usr/bin/verysync -gui-address="0.0.0.0:${port}" -logfile="/var/log/verysync.log" -home="/etc/verysync/" -no-browser >/dev/null 2>&1 &\
+          echo $! > "$PIDFILE"\
+        }' luci-app-verysync/root/etc/init.d/verysync
+        sed -i '/^stop()/,/^}/c\
+        stop() {\
+          [ -f "$PIDFILE" ] || return 0\
+          kill -9 $(cat "$PIDFILE") >/dev/null 2>&1\
+          rm -f "$PIDFILE"\
+        }' luci-app-verysync/root/etc/init.d/verysync
         git_sparse_clone openwrt-25.12 "https://github.com/coolsnowwolf/luci" applications \
         modules/luci-mod-network modules/luci-mod-system libs/rpcd-mod-luci && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/leds.js && rm -rf luci-mod-system/htdocs/luci-static/resources/view/system/led-trigger/
         mv -n applications/* luciapp/; rm -rf applications
